@@ -2,6 +2,10 @@
 #include "Arduino.h"
 #include "Alfredo_NoU3.h"
 
+#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_NOU3)
+NoU_SpiAgent NoU3;
+#endif
+
 uint8_t RSL::state = RSL_OFF;
 
 float fmap(float val, float in_min, float in_max, float out_min, float out_max) {

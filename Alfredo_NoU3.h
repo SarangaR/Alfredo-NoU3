@@ -3,41 +3,27 @@
 
 #include <inttypes.h>
 
-// Pins
-#define MOTOR1_A 13
-#define MOTOR1_B 12
-#define MOTOR2_A 27
-#define MOTOR2_B 33
-#define MOTOR3_A 32
-#define MOTOR3_B 18
-#define MOTOR4_A 19
-#define MOTOR4_B 23
-#define MOTOR5_A 15
-#define MOTOR5_B 14
-#define MOTOR6_A 22
-#define MOTOR6_B 21
+// Pins (TODO: These should be static variables?)
+#define PIN_MOTOR_STORE 17
+#define PIN_MOTOR_CLOCK 18
+#define PIN_MOTOR_DATA 21
+#define PIN_MOTOR_NSLEEP -1 //(TODO: TBD)
 
-#define SERVO1_PIN 16
-#define SERVO2_PIN 17
-#define SERVO3_PIN 25
-#define SERVO4_PIN 26
+#define PIN_SERVO1 7
+#define PIN_SERVO2 6
+#define PIN_SERVO3 5
+#define PIN_SERVO4 4
 
-#define RSL_PIN 2 // Same as built-in LED
+#define RSL_PIN 41 // Same as built-in LED
 
-// PWM Channels
-#define MOTOR1_CHANNEL 0
-#define MOTOR2_CHANNEL 1
-#define MOTOR3_CHANNEL 2
-#define MOTOR4_CHANNEL 3
-#define MOTOR5_CHANNEL 4
-#define MOTOR6_CHANNEL 5
-#define SERVO1_CHANNEL 6
-#define SERVO2_CHANNEL 7
-#define SERVO3_CHANNEL 8
-#define SERVO4_CHANNEL 9
-#define RSL_CHANNEL 10
+// PWM Channels  (TODO: This should be an enum?)
+#define CHANNEL_SERVO1 0
+#define CHANNEL_SERVO2 1
+#define CHANNEL_SERVO3 2
+#define CHANNEL_SERVO4 3
+#define RSL_CHANNEL 4
 
-// PWM Configuration
+// PWM Configuration (TODO: These should be static variables?)
 #define MOTOR_PWM_RES 10 // bits
 #define MOTOR_PWM_FREQ 39000 // Based on AF Motor Shield, uses 39kHz for DC Motors
 #define SERVO_PWM_RES 16 // bits
@@ -45,21 +31,31 @@
 #define RSL_PWM_RES 10 // bits
 #define RSL_PWM_FREQ 1000 // Hz
 
-// Motor states
+// Motor states (TODO: This should be an enum?)
 #define FORWARD 1
 #define BACKWARD 2
 #define BRAKE 3
 #define RELEASE 4
 
-// RSL states
+// RSL states (TODO: This should be an enum?)
 #define RSL_OFF 0
 #define RSL_ON 1
 #define RSL_DISABLED 2
 #define RSL_ENABLED 3
 
-// Drivetrain configurations
+// Drivetrain configurations (TODO: This should be an enum?)
 #define TWO_MOTORS 0
 #define FOUR_MOTORS 1
+
+class NoU_SpiAgent {
+    public:
+        void begin();
+        uint8_t update();
+    private:
+        volatile uint8_t speed = 0x80;
+        volatile uint16_t spiDataOn = 0x5555;
+        static constexpr uint16_t spiDataOff = 0x0000;
+};
 
 class NoU_Motor {
     public:
@@ -144,5 +140,9 @@ class RSL {
     private:
         static uint8_t state;
 };
+
+#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_NOU3)
+extern NoU_SpiAgent NoU3;
+#endif
 
 #endif
