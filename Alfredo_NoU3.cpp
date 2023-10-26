@@ -3,7 +3,7 @@
 #include "Alfredo_NoU3.h"
 
 #if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_NOU3)
-NoU_SpiAgent NoU3;
+NoU_Agent NoU3;
 #endif
 
 uint8_t RSL::state = RSL_OFF;
@@ -14,77 +14,18 @@ float fmap(float val, float in_min, float in_max, float out_min, float out_max) 
 
 NoU_Motor::NoU_Motor(uint8_t motorPort)
 {
-    switch (motorPort) {
-        case 1:
-            aPin = MOTOR1_A;
-            bPin = MOTOR1_B;
-            channel = MOTOR1_CHANNEL;
-            break;
-        case 2:
-            aPin = MOTOR2_A;
-            bPin = MOTOR2_B;
-            channel = MOTOR2_CHANNEL;
-            break;
-        case 3:
-            aPin = MOTOR3_A;
-            bPin = MOTOR3_B;
-            channel = MOTOR3_CHANNEL;
-            break;
-        case 4:
-            aPin = MOTOR4_A;
-            bPin = MOTOR4_B;
-            channel = MOTOR4_CHANNEL;
-            break;
-        case 5:
-            aPin = MOTOR5_A;
-            bPin = MOTOR5_B;
-            channel = MOTOR5_CHANNEL;
-            break;
-        case 6:
-            aPin = MOTOR6_A;
-            bPin = MOTOR6_B;
-            channel = MOTOR6_CHANNEL;
-            break;
-    }
-    ledcSetup(channel, MOTOR_PWM_FREQ, MOTOR_PWM_RES);
-    pinMode(aPin, OUTPUT);
-    pinMode(bPin, OUTPUT);
-    setState(RELEASE);
-    setPower(0);
+    this->motorPort = motorPort;
+    setRaw(0);
 }
 
-void NoU_Motor::setPower(uint16_t power) {
-    power = min(power, (uint16_t)((1 << MOTOR_PWM_RES) - 1));
-    ledcWrite(channel, power);
-    this->output = (state == BACKWARD ? -1 : 1) * ((float)power / ((1 << MOTOR_PWM_RES) - 1));
-}
-
-void NoU_Motor::setState(uint8_t state) {
-    switch (state) {
-        case FORWARD:	
-            ledcAttachPin(aPin, channel);
-            ledcDetachPin(bPin);
-            break;
-        case BACKWARD:
-            ledcDetachPin(aPin);
-            ledcAttachPin(bPin, channel);
-            break;
-        case BRAKE:
-            ledcAttachPin(aPin, channel);
-            ledcAttachPin(bPin, channel);
-            break;
-        case RELEASE:
-            ledcDetachPin(aPin);
-            ledcDetachPin(bPin);
-            break;
-    }
-    this->state = state;
+void NoU_Motor::setRaw(uint16_t power) {
+    if(!inverted) NoU3.setMotor(this->motorPort, power);
+	else NoU3.setMotor(this->motorPort, -1 * power);
 }
 
 void NoU_Motor::set(float output) {
-    output = applyCurve(output);
-    setState(output > 0 ? FORWARD : BACKWARD);
-    setPower(fabs(output) * ((1 << MOTOR_PWM_RES) - 1));
+    uint16_t raw_output = (uint16_t)(applyCurve(output) * 128.0);
+    setRaw(raw_output);
 }
 
 float NoU_Motor::applyCurve(float input) {
@@ -119,31 +60,23 @@ void NoU_Motor::setInverted(boolean inverted) {
     this->inverted = inverted;
 }
 
-boolean NoU_Motor::isInverted() {
-    return inverted;
-}
-
-float NoU_Motor::getOutput() {
-    return output;
-}
-
 NoU_Servo::NoU_Servo(uint8_t servoPort, uint16_t minPulse, uint16_t maxPulse) {
     switch (servoPort) {
         case 1:
-            pin = SERVO1_PIN;
-            channel = SERVO1_CHANNEL;
+            pin = PIN_SERVO_1;
+            channel = CHANNEL_SERVO_1;
             break;
         case 2:
-            pin = SERVO2_PIN;
-            channel = SERVO2_CHANNEL;
+            pin = PIN_SERVO_2;
+            channel = CHANNEL_SERVO_2;
             break;
         case 3:
-            pin = SERVO3_PIN;
-            channel = SERVO3_CHANNEL;
+            pin = PIN_SERVO_3;
+            channel = CHANNEL_SERVO_3;
             break;
         case 4:
-            pin = SERVO4_PIN;
-            channel = SERVO4_CHANNEL;
+            pin = PIN_SERVO_4;
+            channel = CHANNEL_SERVO_4;
             break;
     }
     this->minPulse = minPulse;

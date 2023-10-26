@@ -1,41 +1,35 @@
 #ifndef ALFREDO_NOU3_H
 #define ALFREDO_NOU3_H
 
+#include "Alfredo_NoU3_I2S.h"
 #include <inttypes.h>
 
 // Pins (TODO: These should be static variables?)
-#define PIN_MOTOR_STORE 17
-#define PIN_MOTOR_CLOCK 18
-#define PIN_MOTOR_DATA 21
+// Currently Unused definitions (also might be wrong pins?)
+#define PIN_MOTOR_STORE 12
+#define PIN_MOTOR_CLOCK 13
+#define PIN_MOTOR_DATA 14
 #define PIN_MOTOR_NSLEEP -1 //(TODO: TBD)
 
-#define PIN_SERVO1 7
-#define PIN_SERVO2 6
-#define PIN_SERVO3 5
-#define PIN_SERVO4 4
+#define PIN_SERVO_1 17
+#define PIN_SERVO_2 18
+#define PIN_SERVO_3 8
+#define PIN_SERVO_4 9
 
-#define RSL_PIN 41 // Same as built-in LED
+#define RSL_PIN 45
 
 // PWM Channels  (TODO: This should be an enum?)
-#define CHANNEL_SERVO1 0
-#define CHANNEL_SERVO2 1
-#define CHANNEL_SERVO3 2
-#define CHANNEL_SERVO4 3
+#define CHANNEL_SERVO_1 0
+#define CHANNEL_SERVO_2 1
+#define CHANNEL_SERVO_3 2
+#define CHANNEL_SERVO_4 3
 #define RSL_CHANNEL 4
 
 // PWM Configuration (TODO: These should be static variables?)
-#define MOTOR_PWM_RES 10 // bits
-#define MOTOR_PWM_FREQ 39000 // Based on AF Motor Shield, uses 39kHz for DC Motors
-#define SERVO_PWM_RES 16 // bits
+#define SERVO_PWM_RES 13 // bits
 #define SERVO_PWM_FREQ 50 // Hz
 #define RSL_PWM_RES 10 // bits
 #define RSL_PWM_FREQ 1000 // Hz
-
-// Motor states (TODO: This should be an enum?)
-#define FORWARD 1
-#define BACKWARD 2
-#define BRAKE 3
-#define RELEASE 4
 
 // RSL states (TODO: This should be an enum?)
 #define RSL_OFF 0
@@ -47,37 +41,27 @@
 #define TWO_MOTORS 0
 #define FOUR_MOTORS 1
 
-class NoU_SpiAgent {
+class NoU_Agent {
     public:
-        void begin();
-        uint8_t update();
-    private:
-        volatile uint8_t speed = 0x80;
-        volatile uint16_t spiDataOn = 0x5555;
-        static constexpr uint16_t spiDataOff = 0x0000;
+		void begin(){ NoU_I2S_Begin(); };
+		void update(){ NoU_I2S_Update(); };
+		void setMotor(uint8_t motorPort, int16_t motorPower){ NoU_I2S_SetMotor(motorPort, motorPower); };
 };
 
 class NoU_Motor {
     public:
         NoU_Motor(uint8_t motorPort);
         void set(float output);
-        void setState(uint8_t state);
-        void setPower(uint16_t power);
+        void setRaw(uint16_t power);
         void setInverted(boolean isInverted);
-        boolean isInverted();
         void setMinimumOutput(float minimumOutput);
         void setMaximumOutput(float maximumOutput);
         void setExponent(float exponent);
         void setDeadband(float deadband);
-        float getOutput();
     private:
         float applyCurve(float output);
-        uint8_t aPin;
-        uint8_t bPin;
-        uint8_t channel;
-        boolean inverted;
-        float output;
-        uint8_t state;
+        uint8_t motorPort;
+        boolean inverted = false;
         float minimumOutput = 0;
         float maximumOutput = 1;
         float exponent = 1;
@@ -142,7 +126,7 @@ class RSL {
 };
 
 #if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_NOU3)
-extern NoU_SpiAgent NoU3;
+extern NoU_Agent NoU3;
 #endif
 
 #endif
