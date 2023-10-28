@@ -19,11 +19,12 @@
 #define RSL_PIN 45
 
 // PWM Channels  (TODO: This should be an enum?)
-#define CHANNEL_SERVO_1 0
-#define CHANNEL_SERVO_2 1
-#define CHANNEL_SERVO_3 2
-#define CHANNEL_SERVO_4 3
-#define RSL_CHANNEL 4
+// Channel 0 and 1 are already in use?
+#define CHANNEL_SERVO_1 2
+#define CHANNEL_SERVO_2 3
+#define CHANNEL_SERVO_3 4
+#define CHANNEL_SERVO_4 5
+#define RSL_CHANNEL 6
 
 // PWM Configuration (TODO: These should be static variables?)
 #define SERVO_PWM_RES 13 // bits

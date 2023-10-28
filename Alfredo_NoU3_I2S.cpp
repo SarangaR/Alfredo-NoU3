@@ -543,13 +543,13 @@ I2SClass I2S(I2S_DEVICE, I2S_CLOCK_GENERATOR); // default - half duplex
 
 //--------------------------------------------------------------------------------------------------------------------------------//
 
-#define MP1 (4-1)
+#define MP1 (7-1)
 #define MP2 (5-1)
 #define MP3 (3-1)
-#define MP4 (6-1)
+#define MP4 (1-1)
 #define MP5 (2-1)
-#define MP6 (7-1)
-#define MP7 (1-1)
+#define MP6 (4-1)
+#define MP7 (6-1)
 #define MP8 (8-1)
 
 int my_buffer_len = 128; // 128frames * 2bytes a frame
