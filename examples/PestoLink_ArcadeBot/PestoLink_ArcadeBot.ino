@@ -23,7 +23,7 @@ NoU_Drivetrain drivetrain(&frontLeftMotor, &frontRightMotor, &rearLeftMotor, &re
 void setup() {
 //EVERYONE SHOULD CHANGE "ESP32 Bluetooth" TO THE NAME OF THEIR ROBOT HERE BEFORE PAIRING THEIR ROBOT TO ANY LAPTOP
     NoU3.begin();
-    PestoLink.begin("ESP32 Bluetooth");
+    PestoLink.begin("ESP32_Bluetooth");
     Serial.begin(115200);
     pinMode(PIN_LED_RED, OUTPUT);
     digitalWrite(PIN_LED_RED, LOW);
@@ -47,7 +47,6 @@ void loop() {
 
 // Here we decide what the throttle and rotation direction will be based on gamepad inputs   
     if (PestoLink.update()) {
-        Serial.print(PestoLink.getAxis(0)); Serial.print(" ");
         float throttle = -PestoLink.getAxis(1);
         float rotation = PestoLink.getAxis(0);
         
