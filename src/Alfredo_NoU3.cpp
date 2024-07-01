@@ -15,17 +15,12 @@ float fmap(float val, float in_min, float in_max, float out_min, float out_max) 
 NoU_Motor::NoU_Motor(uint8_t motorPort)
 {
     this->motorPort = motorPort;
-    setRaw(0);
-}
-
-void NoU_Motor::setRaw(uint16_t power) {
-    if(!inverted) NoU3.setMotor(this->motorPort, power);
-	else NoU3.setMotor(this->motorPort, -1 * power);
+    set(0);
 }
 
 void NoU_Motor::set(float output) {
-    uint16_t raw_output = (uint16_t)(applyCurve(output) * 128.0);
-    setRaw(raw_output);
+	if(!inverted) NoU3.setMotor(this->motorPort, applyCurve(output));
+	else NoU3.setMotor(this->motorPort, -1 * applyCurve(output));
 }
 
 float NoU_Motor::applyCurve(float input) {

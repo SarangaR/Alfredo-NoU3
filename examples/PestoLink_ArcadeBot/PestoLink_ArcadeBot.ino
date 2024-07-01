@@ -71,7 +71,6 @@ void loop() {
     servo.write(servoAngle);
 
 // No need to mess with this code
-    NoU3.update();
     PestoLink.update();
     RSL::update();
 }

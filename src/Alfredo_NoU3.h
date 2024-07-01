@@ -2,6 +2,10 @@
 #define ALFREDO_NOU3_H
 
 #include "Alfredo_NoU3_I2S.h"
+#include "Alfredo_Encoder.h"
+#include "LSM6DSOX.h"
+#include "mmc.h"
+
 #include <inttypes.h>
 
 // Pins (TODO: These should be static variables?)
@@ -45,15 +49,13 @@
 class NoU_Agent {
     public:
 		void begin(){ NoU_I2S_Begin(); };
-		void update(){ NoU_I2S_Update(); };
-		void setMotor(uint8_t motorPort, int16_t motorPower){ NoU_I2S_SetMotor(motorPort, motorPower); };
+		void setMotor(uint8_t motorPort, float motorPower){ NoU_I2S_SetMotor(motorPort, motorPower); };
 };
 
 class NoU_Motor {
     public:
         NoU_Motor(uint8_t motorPort);
         void set(float output);
-        void setRaw(uint16_t power);
         void setInverted(boolean isInverted);
         void setMinimumOutput(float minimumOutput);
         void setMaximumOutput(float maximumOutput);

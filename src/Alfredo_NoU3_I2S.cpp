@@ -1,607 +1,1069 @@
 #include "Alfredo_NoU3_I2S.h"
 
 #include <Arduino.h>
-#include "freertos/ringbuf.h"
-#include <wiring_private.h>
-#include "freertos/semphr.h"
+#include <Wire.h>
 
-namespace esp_i2s {
-  #include "driver/i2s.h" // ESP specific i2s driver
-}
-
-#define _I2S_EVENT_QUEUE_LENGTH 1
-
-//DBC = Real_DMA_Buff_size / (#CH * bytes per sample) = RDBS/2
-#define DMA_BUFFER_COUNT 2 // BUFFER COUNT must be between 2 and 128
-#define DMA_BUF_LEN 64
-
-#define SAMPLE_RATE 512000
-#define BYTES_PER_SAMPLE 2
-
-#define I2S_DEVICE 0
-#define I2S_CLOCK_GENERATOR 0 // does nothing for ESP
-
-class I2SClass : public Stream
+PCA9685::PCA9685()
 {
-public:
-  // The device index and pins must map to the "COM" pads in Table 6-1 of the datasheet
-  I2SClass(uint8_t deviceIndex, uint8_t clockGenerator);
+  device_count_ = 0;
+  for (DeviceIndex device_index=0; device_index<DEVICE_COUNT_MAX; ++device_index)
+  {
+    device_addresses_[device_index] = GENERAL_CALL_DEVICE_ADDRESS;
+  }
+}
 
-  // Init in MASTER mode: the SCK and FS pins are driven as outputs using the sample rate
-  int begin();
-  int setAllPins(int sckPin, int fsPin, int sdPin, int outSdPin, int inSdPin);
-  void end();
-
-  // from Stream
-  virtual int available();
-  virtual int read();
-  virtual int peek();
-  virtual void flush();
-
-  // from Print
-  virtual size_t write(uint8_t);
-  virtual size_t write(const uint8_t *buffer, size_t size);
-
-  virtual int availableForWrite();
-
-  int read(void* buffer, size_t size);
-
-  size_t write_nonblocking(const void *buffer, size_t size);
-
-private:
-
-  int _enableTransmitter();
-  void _onTransferComplete();
-
-  int _createCallbackTask();
-
-  static void onDmaTransferComplete(void*);
-  void _uninstallDriver();
-  int  _applyPinSetting();
-
-private:
-  typedef enum {
-    I2S_STATE_IDLE,
-    I2S_STATE_TRANSMITTER,
-    I2S_STATE_RECEIVER,
-    I2S_STATE_DUPLEX
-  } i2s_state_t;
-
-  int _deviceIndex;
-  int _sdPin;
-  int _inSdPin;
-  int _outSdPin;
-  int _sckPin;
-  int _fsPin;
-
-  i2s_state_t _state;
-  int _bitsPerSample;
-  uint32_t _sampleRate;
-
-  uint16_t _buffer_byte_size;
-
-  bool _driverInstalled; // Is IDF I2S driver installed?
-  bool _initialized; // Is everything initialized (callback task, I2S driver, ring buffers)?
-  TaskHandle_t _callbackTaskHandle;
-  QueueHandle_t _i2sEventQueue;
-  SemaphoreHandle_t _i2s_general_mutex;
-  RingbufHandle_t _input_ring_buffer;
-  RingbufHandle_t _output_ring_buffer;
-  int _i2s_dma_buffer_size;
-  bool _driveClock;
-  uint32_t _peek_buff;
-  bool _peek_buff_valid;
-
-  void _tx_done_routine(uint8_t* prev_item);
-
-  uint16_t _nesting_counter;
-  void _take_if_not_holding();
-  void _give_if_top_call();
-  void _fix_and_write(void *output, size_t size, size_t *bytes_written = NULL, size_t *actual_bytes_written = NULL);
-};
-
-extern I2SClass I2S;
-
-//--------------------------------------------------------------------------------------------------------------------------------//
-
-I2SClass::I2SClass(uint8_t deviceIndex, uint8_t clockGenerator) :
-  _deviceIndex(deviceIndex),
-  _sdPin(-1),             // shared data pin
-  _sckPin(-1),           // clock pin
-  _fsPin(-1),             // frame (word) select pin
-
-  _state(I2S_STATE_IDLE),
-  _bitsPerSample(0),
-  _sampleRate(0),
-
-  _buffer_byte_size(0),
-
-  _driverInstalled(false),
-  _initialized(false),
-  _callbackTaskHandle(NULL),
-  _i2sEventQueue(NULL),
-  _i2s_general_mutex(NULL),
-  _input_ring_buffer(NULL),
-  _output_ring_buffer(NULL),
-  _i2s_dma_buffer_size(DMA_BUF_LEN), // Number of frames in each DMA buffer. Frame size = number of channels * Bytes per sample; Must be between 8 and 1024
-  _driveClock(true),
-  _peek_buff(0),
-  _peek_buff_valid(false),
-  _nesting_counter(0)
+void PCA9685::setupSingleDevice(TwoWire & wire,
+  DeviceAddress device_address,
+  bool fast_mode_plus)
 {
-  _i2s_general_mutex = xSemaphoreCreateMutex();
-  if(_i2s_general_mutex == NULL){
-    log_e("I2S could not create internal mutex!");
+  setWire(Wire,fast_mode_plus);
+  addDevice(device_address);
+  resetAllDevices();
+}
+
+void PCA9685::setupOutputEnablePin(Pin output_enable_pin)
+{
+  pinMode(output_enable_pin,OUTPUT);
+  digitalWrite(output_enable_pin,HIGH);
+}
+
+void PCA9685::enableOutputs(Pin output_enable_pin)
+{
+  digitalWrite(output_enable_pin,LOW);
+}
+
+void PCA9685::disableOutputs(Pin output_enable_pin)
+{
+  digitalWrite(output_enable_pin,HIGH);
+}
+
+PCA9685::Frequency PCA9685::getFrequencyMin()
+{
+  return MICROSECONDS_PER_SECOND / PWM_PERIOD_MAX_US;
+}
+
+PCA9685::Frequency PCA9685::getFrequencyMax()
+{
+  return MICROSECONDS_PER_SECOND / PWM_PERIOD_MIN_US;
+}
+
+void PCA9685::setToFrequency(Frequency frequency)
+{
+  setAllDevicesToFrequency(frequency);
+}
+
+PCA9685::Frequency PCA9685::getFrequency()
+{
+  Frequency frequency = 0;
+  if (device_count_ > 0)
+  {
+    frequency = getSingleDeviceFrequency(device_addresses_[0]);
+  }
+  return frequency;
+}
+
+void PCA9685::setToServoFrequency()
+{
+  setAllDevicesToServoFrequency();
+}
+
+PCA9685::Frequency PCA9685::getServoFrequency()
+{
+  return SERVO_FREQUENCY;
+}
+
+PCA9685::ChannelCount PCA9685::getChannelCount()
+{
+  return CHANNELS_PER_DEVICE * device_count_;
+}
+
+PCA9685::Percent PCA9685::getDutyCycleMin()
+{
+  return PERCENT_MIN;
+}
+
+PCA9685::Percent PCA9685::getDutyCycleMax()
+{
+  return PERCENT_MAX;
+}
+
+PCA9685::Percent PCA9685::getPercentDelayMin()
+{
+  return PERCENT_MIN;
+}
+
+PCA9685::Percent PCA9685::getPercentDelayMax()
+{
+  return PERCENT_MAX;
+}
+
+void PCA9685::setChannelDutyCycle(Channel channel,
+  Percent duty_cycle,
+  Percent percent_delay)
+{
+  Duration pulse_width;
+  Duration phase_shift;
+  dutyCycleAndPercentDelayToPulseWidthAndPhaseShift(duty_cycle,percent_delay,pulse_width,phase_shift);
+  setChannelPulseWidth(channel,pulse_width,phase_shift);
+}
+
+void PCA9685::getChannelDutyCycle(Channel channel,
+  Percent & duty_cycle,
+  Percent & percent_delay)
+{
+  Duration pulse_width;
+  Duration phase_shift;
+  getChannelPulseWidth(channel,pulse_width,phase_shift);
+  pulseWidthAndPhaseShiftToDutyCycleAndPercentDelay(pulse_width,phase_shift,duty_cycle,percent_delay);
+}
+
+void PCA9685::setAllChannelsDutyCycle(Percent duty_cycle,
+  Percent percent_delay)
+{
+  setAllDeviceChannelsDutyCycle(DEVICE_ADDRESS_ALL,duty_cycle,percent_delay);
+}
+
+PCA9685::Duration PCA9685::getPulseWidthMin()
+{
+  return TIME_MIN;
+}
+
+PCA9685::Duration PCA9685::getPulseWidthMax()
+{
+  return TIME_MAX;
+}
+
+PCA9685::Duration PCA9685::getPhaseShiftMin()
+{
+  return TIME_MIN;
+}
+
+PCA9685::Duration PCA9685::getPhaseShiftMax()
+{
+  return 0xFFFF;
+}
+
+void PCA9685::setChannelPulseWidth(Channel channel,
+  Duration pulse_width,
+  Duration phase_shift)
+{
+  Time on_time;
+  Time off_time;
+  pulseWidthAndPhaseShiftToOnTimeAndOffTime(pulse_width,phase_shift,on_time,off_time);
+  setChannelOnAndOffTime(channel,on_time,off_time);
+}
+
+void PCA9685::getChannelPulseWidth(Channel channel,
+  Duration & pulse_width,
+  Duration & phase_shift)
+{
+  Time on_time = 0;
+  Time off_time = 0;
+  getChannelOnAndOffTime(channel,on_time,off_time);
+  onTimeAndOffTimeToPulseWidthAndPhaseShift(on_time,off_time,pulse_width,phase_shift);
+}
+
+void PCA9685::setAllChannelsPulseWidth(Duration pulse_width,
+  Duration phase_shift)
+{
+  setAllDeviceChannelsPulseWidth(DEVICE_ADDRESS_ALL,pulse_width,phase_shift);
+}
+
+void PCA9685::setChannelServoPulseDuration(Channel channel,
+  DurationMicroseconds pulse_duration_microseconds)
+{
+  Duration pulse_width;
+  Duration phase_shift;
+  servoPulseDurationToPulseWidthAndPhaseShift(pulse_duration_microseconds,pulse_width,phase_shift);
+  setChannelPulseWidth(channel,pulse_width,phase_shift);
+}
+
+void PCA9685::getChannelServoPulseDuration(Channel channel,
+  DurationMicroseconds & pulse_duration_microseconds)
+{
+  Duration pulse_width;
+  Duration phase_shift;
+  getChannelPulseWidth(channel,pulse_width,phase_shift);
+  pulseWidthAndPhaseShiftToServoPulseDuration(pulse_width,phase_shift,pulse_duration_microseconds);
+}
+
+void PCA9685::setAllChannelsServoPulseDuration(DurationMicroseconds pulse_duration_microseconds)
+{
+  setAllDeviceChannelsServoPulseDuration(DEVICE_ADDRESS_ALL,pulse_duration_microseconds);
+}
+
+PCA9685::Time PCA9685::getTimeMin()
+{
+  return TIME_MIN;
+}
+
+PCA9685::Time PCA9685::getTimeMax()
+{
+  return TIME_MAX;
+}
+
+void PCA9685::setChannelOnAndOffTime(Channel channel,
+  Time on_time,
+  Time off_time)
+{
+  if (channel >= getChannelCount())
+  {
+    return;
+  }
+  DeviceIndex device_index = channelToDeviceIndex(channel);
+  Channel device_channel = channelToDeviceChannel(channel);
+  uint8_t register_address = LED0_ON_L_REGISTER_ADDRESS + LED_REGISTERS_SIZE * device_channel;
+  uint32_t data = (off_time << BITS_PER_TWO_BYTES) | on_time;
+  write(device_addresses_[device_index],register_address,data);
+}
+
+void PCA9685::getChannelOnAndOffTime(Channel channel,
+  Time & on_time,
+  Time & off_time)
+{
+  if (channel >= getChannelCount())
+  {
+    return;
+  }
+  DeviceIndex device_index = channelToDeviceIndex(channel);
+  Channel device_channel = channelToDeviceChannel(channel);
+  uint8_t register_address = LED0_ON_L_REGISTER_ADDRESS + LED_REGISTERS_SIZE * device_channel;
+  uint32_t data;
+  read(device_index,register_address,data);
+  on_time = data & TWO_BYTE_MAX;
+  off_time = (data >> BITS_PER_TWO_BYTES) & TWO_BYTE_MAX;
+}
+
+void PCA9685::setAllChannelsOnAndOffTime(Time on_time,
+  Time off_time)
+{
+  setAllDeviceChannelsOnAndOffTime(DEVICE_ADDRESS_ALL,on_time,off_time);
+}
+
+void PCA9685::setChannelOnTime(Channel channel,
+  Time on_time)
+{
+  if (channel >= getChannelCount())
+  {
+    return;
+  }
+  DeviceIndex device_index = channelToDeviceIndex(channel);
+  Channel device_channel = channelToDeviceChannel(channel);
+  uint8_t register_address = LED0_ON_L_REGISTER_ADDRESS + LED_REGISTERS_SIZE * device_channel;
+  write(device_addresses_[device_index],register_address,on_time);
+}
+
+void PCA9685::getChannelOnTime(Channel channel,
+  Time & on_time)
+{
+  if (channel >= getChannelCount())
+  {
+    return;
+  }
+  DeviceIndex device_index = channelToDeviceIndex(channel);
+  Channel device_channel = channelToDeviceChannel(channel);
+  uint8_t register_address = LED0_ON_L_REGISTER_ADDRESS + LED_REGISTERS_SIZE * device_channel;
+  read(device_index,register_address,on_time);
+}
+
+void PCA9685::setAllChannelsOnTime(Time on_time)
+{
+  setAllDeviceChannelsOnTime(DEVICE_ADDRESS_ALL,on_time);
+}
+
+void PCA9685::setChannelOffTime(Channel channel,
+  Time off_time)
+{
+  if (channel >= getChannelCount())
+  {
+    return;
+  }
+  DeviceIndex device_index = channelToDeviceIndex(channel);
+  Channel device_channel = channelToDeviceChannel(channel);
+  uint8_t register_address = LED0_OFF_L_REGISTER_ADDRESS + LED_REGISTERS_SIZE * device_channel;
+  write(device_addresses_[device_index],register_address,off_time);
+}
+
+void PCA9685::getChannelOffTime(Channel channel,
+  Time & off_time)
+{
+  if (channel >= getChannelCount())
+  {
+    return;
+  }
+  DeviceIndex device_index = channelToDeviceIndex(channel);
+  Channel device_channel = channelToDeviceChannel(channel);
+  uint8_t register_address = LED0_OFF_L_REGISTER_ADDRESS + LED_REGISTERS_SIZE * device_channel;
+  read(device_index,register_address,off_time);
+}
+
+void PCA9685::setAllChannelsOffTime(Time off_time)
+{
+  setAllDeviceChannelsOffTime(DEVICE_ADDRESS_ALL,off_time);
+}
+
+void PCA9685::setOutputsInverted()
+{
+  setAllDevicesOutputsInverted();
+}
+
+void PCA9685::setOutputsNotInverted()
+{
+  setAllDevicesOutputsNotInverted();
+}
+
+void PCA9685::setOutputsToTotemPole()
+{
+  setAllDevicesOutputsToTotemPole();
+}
+
+void PCA9685::setOutputsToOpenDrain()
+{
+  setAllDevicesOutputsToOpenDrain();
+}
+
+void PCA9685::setOutputsLowWhenDisabled()
+{
+  setAllDevicesOutputsLowWhenDisabled();
+}
+
+void PCA9685::setOutputsHighWhenDisabled()
+{
+  setAllDevicesOutputsHighWhenDisabled();
+}
+
+void PCA9685::setOutputsHighImpedanceWhenDisabled()
+{
+  setAllDevicesOutputsHighImpedanceWhenDisabled();
+}
+
+void PCA9685::setWire(TwoWire & wire,
+  bool fast_mode_plus)
+{
+  wire_ptr_ = &wire;
+  wire_ptr_->begin();
+  if (fast_mode_plus)
+  {
+    wire_ptr_->setClock(FAST_MODE_PLUS_CLOCK_FREQUENCY);
+  }
+
+}
+
+void PCA9685::addDevice(DeviceAddress device_address)
+{
+  if ((device_count_ >= DEVICE_COUNT_MAX) ||
+    (device_address < DEVICE_ADDRESS_MIN) ||
+    (device_address > DEVICE_ADDRESS_MAX))
+  {
+    return;
+  }
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index != DEVICE_INDEX_NONE)
+  {
+    return;
+  }
+  device_addresses_[device_count_++] = device_address;
+}
+
+void PCA9685::resetAllDevices()
+{
+  wire_ptr_->beginTransmission(GENERAL_CALL_DEVICE_ADDRESS);
+  wire_ptr_->write(SWRST);
+  wire_ptr_->endTransmission();
+  delay(10);
+  wakeAll();
+}
+
+void PCA9685::addDeviceToGroup0(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  Mode1Register mode1_register = readMode1Register(device_index);
+  mode1_register.fields.sub1 = DOES_RESPOND;
+  write(device_address,MODE1_REGISTER_ADDRESS,mode1_register.data);
+}
+
+void PCA9685::removeDeviceFromGroup0(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  Mode1Register mode1_register = readMode1Register(device_index);
+  mode1_register.fields.sub1 = DOES_NOT_RESPOND;
+  write(device_address,MODE1_REGISTER_ADDRESS,mode1_register.data);
+}
+
+void PCA9685::addDeviceToGroup1(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  Mode1Register mode1_register = readMode1Register(device_index);
+  mode1_register.fields.sub2 = DOES_RESPOND;
+  write(device_address,MODE1_REGISTER_ADDRESS,mode1_register.data);
+}
+
+void PCA9685::removeDeviceFromGroup1(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  Mode1Register mode1_register = readMode1Register(device_index);
+  mode1_register.fields.sub2 = DOES_NOT_RESPOND;
+  write(device_address,MODE1_REGISTER_ADDRESS,mode1_register.data);
+}
+
+void PCA9685::addDeviceToGroup2(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  Mode1Register mode1_register = readMode1Register(device_index);
+  mode1_register.fields.sub3 = DOES_RESPOND;
+  write(device_address,MODE1_REGISTER_ADDRESS,mode1_register.data);
+}
+
+void PCA9685::removeDeviceFromGroup2(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  Mode1Register mode1_register = readMode1Register(device_index);
+  mode1_register.fields.sub3 = DOES_NOT_RESPOND;
+  write(device_address,MODE1_REGISTER_ADDRESS,mode1_register.data);
+}
+
+void PCA9685::setSingleDeviceToFrequency(DeviceAddress device_address,
+  Frequency frequency)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  uint8_t prescale = frequencyToPrescale(frequency);
+  setPrescale(device_index,prescale);
+}
+
+PCA9685::Frequency PCA9685::getSingleDeviceFrequency(DeviceAddress device_address)
+{
+  Frequency frequency = 0;
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index >= 0)
+  {
+    uint8_t prescale;
+    getPrescale(device_index,prescale);
+    frequency = prescaleToFrequency(prescale);
+  }
+  return frequency;
+}
+
+void PCA9685::setAllDevicesToFrequency(Frequency frequency)
+{
+  uint8_t prescale = frequencyToPrescale(frequency);
+  for (DeviceIndex device_index=0; device_index<device_count_; ++device_index)
+  {
+    setPrescale(device_index,prescale);
   }
 }
 
-int I2SClass::_createCallbackTask(){
-  int stack_size = 20000;
-  if(_callbackTaskHandle != NULL){
-    log_e("Callback task already exists!");
-    return 0; // ERR
+void PCA9685::setSingleDeviceToServoFrequency(DeviceAddress device_address)
+{
+  setSingleDeviceToFrequency(device_address,SERVO_FREQUENCY);
+}
+
+PCA9685::Frequency PCA9685::getSingleDeviceServoFrequency(DeviceAddress device_address)
+{
+  return SERVO_FREQUENCY;
+}
+
+void PCA9685::setAllDevicesToServoFrequency()
+{
+  setAllDevicesToFrequency(SERVO_FREQUENCY);
+}
+
+uint8_t PCA9685::getDeviceChannelCount()
+{
+  return CHANNELS_PER_DEVICE;
+}
+
+void PCA9685::setDeviceChannelDutyCycle(DeviceAddress device_address,
+  Channel device_channel,
+  Percent duty_cycle,
+  Percent percent_delay)
+{
+  Duration pulse_width;
+  Duration phase_shift;
+  dutyCycleAndPercentDelayToPulseWidthAndPhaseShift(duty_cycle,percent_delay,pulse_width,phase_shift);
+  setDeviceChannelPulseWidth(device_address,device_channel,pulse_width,phase_shift);
+}
+
+void PCA9685::setAllDeviceChannelsDutyCycle(DeviceAddress device_address,
+  Percent duty_cycle,
+  Percent percent_delay)
+{
+  Duration pulse_width;
+  Duration phase_shift;
+  dutyCycleAndPercentDelayToPulseWidthAndPhaseShift(duty_cycle,percent_delay,pulse_width,phase_shift);
+  setAllDeviceChannelsPulseWidth(device_address,pulse_width,phase_shift);
+}
+
+void PCA9685::setDeviceChannelPulseWidth(DeviceAddress device_address,
+  Channel device_channel,
+  Duration pulse_width,
+  Duration phase_shift)
+{
+  Time on_time;
+  Time off_time;
+  pulseWidthAndPhaseShiftToOnTimeAndOffTime(pulse_width,phase_shift,on_time,off_time);
+  setDeviceChannelOnAndOffTime(device_address,device_channel,on_time,off_time);
+}
+
+void PCA9685::setAllDeviceChannelsPulseWidth(DeviceAddress device_address,
+  Duration pulse_width,
+  Duration phase_shift)
+{
+  Time on_time;
+  Time off_time;
+  pulseWidthAndPhaseShiftToOnTimeAndOffTime(pulse_width,phase_shift,on_time,off_time);
+  setAllDeviceChannelsOnAndOffTime(device_address,on_time,off_time);
+}
+
+void PCA9685::setDeviceChannelServoPulseDuration(DeviceAddress device_address,
+  Channel device_channel,
+  DurationMicroseconds pulse_duration_microseconds)
+{
+  Duration pulse_width;
+  Duration phase_shift;
+  servoPulseDurationToPulseWidthAndPhaseShift(pulse_duration_microseconds,pulse_width,phase_shift);
+  setDeviceChannelPulseWidth(device_address,device_channel,pulse_width,phase_shift);
+}
+
+void PCA9685::setAllDeviceChannelsServoPulseDuration(DeviceAddress device_address,
+  DurationMicroseconds pulse_duration_microseconds)
+{
+  Duration pulse_width;
+  Duration phase_shift;
+  servoPulseDurationToPulseWidthAndPhaseShift(pulse_duration_microseconds,pulse_width,phase_shift);
+  setAllDeviceChannelsPulseWidth(device_address,pulse_width,phase_shift);
+}
+
+void PCA9685::setDeviceChannelOnAndOffTime(DeviceAddress device_address,
+  Channel device_channel,
+  Time on_time,
+  Time off_time)
+{
+  if (device_channel >= getDeviceChannelCount())
+  {
+    return;
   }
+  uint8_t register_address = LED0_ON_L_REGISTER_ADDRESS + LED_REGISTERS_SIZE * device_channel;
+  uint32_t data = (off_time << BITS_PER_TWO_BYTES) | on_time;
+  write(device_address,register_address,data);
+}
 
-  xTaskCreate(
-    onDmaTransferComplete,   // Function to implement the task
-    "onDmaTransferComplete", // Name of the task
-    stack_size,              // Stack size in words
-    NULL,                    // Task input parameter
-    2,                       // Priority of the task
-    &_callbackTaskHandle     // Task handle.
-    );
-  if(_callbackTaskHandle == NULL){
-    log_e("Could not create callback task");
-    return 0; // ERR
+void PCA9685::setAllDeviceChannelsOnAndOffTime(DeviceAddress device_address,
+  Time on_time,
+  Time off_time)
+{
+  uint8_t register_address = ALL_LED_ON_L_REGISTER_ADDRESS;
+  uint32_t data = (off_time << BITS_PER_TWO_BYTES) | on_time;
+  write(device_address,register_address,data);
+}
+
+void PCA9685::setDeviceChannelOnTime(DeviceAddress device_address,
+  Channel device_channel,
+  Time on_time)
+{
+  if (device_channel >= getDeviceChannelCount())
+  {
+    return;
   }
-  return 1; // OK
+  uint8_t register_address = LED0_ON_L_REGISTER_ADDRESS + LED_REGISTERS_SIZE * device_channel;
+  write(device_address,register_address,on_time);
 }
 
-
-// Core function
-int I2SClass::begin(){
-
-  _take_if_not_holding();
-
-  _state = I2S_STATE_DUPLEX;
-
-  _driveClock = true;
-  _sampleRate = (uint32_t) SAMPLE_RATE;
-  _bitsPerSample = BYTES_PER_SAMPLE * 8;
-
-  esp_i2s::i2s_config_t i2s_config = {
-    .mode = (esp_i2s::i2s_mode_t)(esp_i2s::I2S_MODE_TX | esp_i2s::I2S_MODE_MASTER),
-    .sample_rate = _sampleRate,
-    .bits_per_sample = (esp_i2s::i2s_bits_per_sample_t)_bitsPerSample,
-    .channel_format = esp_i2s::I2S_CHANNEL_FMT_ONLY_LEFT,
-    .communication_format = (esp_i2s::i2s_comm_format_t)(esp_i2s::I2S_COMM_FORMAT_STAND_MSB),
-    .intr_alloc_flags = 0,
-    .dma_buf_count = DMA_BUFFER_COUNT,
-    .dma_buf_len = _i2s_dma_buffer_size,
-    .use_apll = true
-  };
-
-  esp_i2s::i2s_driver_install((esp_i2s::i2s_port_t) _deviceIndex, &i2s_config, _I2S_EVENT_QUEUE_LENGTH, &_i2sEventQueue);
-  esp_i2s::i2s_set_clk((esp_i2s::i2s_port_t) _deviceIndex, _sampleRate, (esp_i2s::i2s_bits_per_sample_t)_bitsPerSample, esp_i2s::I2S_CHANNEL_MONO);
-
-  _driverInstalled = true;
-  _applyPinSetting();
-
-  _buffer_byte_size = _i2s_dma_buffer_size * (_bitsPerSample / 8) * DMA_BUFFER_COUNT * 2;
-  _input_ring_buffer  = xRingbufferCreate(_buffer_byte_size, RINGBUF_TYPE_BYTEBUF);
-  _output_ring_buffer = xRingbufferCreate(_buffer_byte_size, RINGBUF_TYPE_BYTEBUF);
-
-  _createCallbackTask();
-
-  _initialized = true;
-
-  _give_if_top_call();
-
-  return 1; // OK
+void PCA9685::setAllDeviceChannelsOnTime(DeviceAddress device_address,
+  Time on_time)
+{
+  uint8_t register_address = ALL_LED_ON_L_REGISTER_ADDRESS;
+  write(device_address,register_address,on_time);
 }
 
-int I2SClass::_applyPinSetting(){
-  if(_driverInstalled){
-
-    esp_i2s::i2s_pin_config_t pin_config = {
-      .bck_io_num = _sckPin,
-      .ws_io_num = _fsPin,
-      .data_out_num = _outSdPin,
-      .data_in_num = _inSdPin
-    };
-
-    i2s_set_pin((esp_i2s::i2s_port_t) _deviceIndex, &pin_config);
-
-  } // if(_driverInstalled)
-  return 1; // OK
-}
-
-int I2SClass::setAllPins(int sckPin, int fsPin, int sdPin, int outSdPin, int inSdPin){
-  _take_if_not_holding();
-
-  if(sckPin >= 0) _sckPin = sckPin;
-  else            _sckPin = -1;
-
-  if(fsPin >= 0) _fsPin = fsPin;
-  else           _fsPin = -1;
-
-  if(sdPin >= 0) _sdPin = sdPin;
-  else           _sdPin = -1;
-
-  if(outSdPin >= 0) _outSdPin = outSdPin;
-  else              _outSdPin = -1;
-
-  if(inSdPin >= 0) _inSdPin = inSdPin;
-  else             _inSdPin = -1;
-
-  int ret = _applyPinSetting();
-  _give_if_top_call();
-  return ret;
-}
-
-
-void I2SClass::_uninstallDriver(){
-  if(_driverInstalled){
-    esp_i2s::i2s_driver_uninstall((esp_i2s::i2s_port_t) _deviceIndex);
-
-    if(_state != I2S_STATE_DUPLEX){
-      _state = I2S_STATE_IDLE;
-    }
-    _driverInstalled = false;
-  } // if(_driverInstalled)
-}
-
-void I2SClass::end(){
-  _take_if_not_holding();
-  if(xTaskGetCurrentTaskHandle() != _callbackTaskHandle){
-    if(_callbackTaskHandle){
-      vTaskDelete(_callbackTaskHandle);
-      _callbackTaskHandle = NULL; // prevent secondary termination to non-existing task
-    }
-    _uninstallDriver();
-    if(_input_ring_buffer != NULL){
-      vRingbufferDelete(_input_ring_buffer);
-      _input_ring_buffer = NULL;
-    }
-    if(_output_ring_buffer != NULL){
-      vRingbufferDelete(_output_ring_buffer);
-      _output_ring_buffer = NULL;
-    }
-    _initialized = false;
-  }else{
-    log_w("WARNING: ending I2SClass from callback task not permitted, but attempted!");
+void PCA9685::setDeviceChannelOffTime(DeviceAddress device_address,
+  Channel device_channel,
+  Time off_time)
+{
+  if (device_channel >= getDeviceChannelCount())
+  {
+    return;
   }
-  _give_if_top_call();
+  uint8_t register_address = LED0_OFF_L_REGISTER_ADDRESS + LED_REGISTERS_SIZE * device_channel;
+  write(device_address,register_address,off_time);
 }
 
-// Bytes available to read
-int I2SClass::available(){
-  _take_if_not_holding();
-  int ret = 0;
-  if(_input_ring_buffer != NULL){
-    ret = _buffer_byte_size - (int)xRingbufferGetCurFreeSize(_input_ring_buffer);
+void PCA9685::setAllDeviceChannelsOffTime(DeviceAddress device_address,
+  Time off_time)
+{
+  uint8_t register_address = ALL_LED_OFF_L_REGISTER_ADDRESS;
+  write(device_address,register_address,off_time);
+}
+
+void PCA9685::setSingleDeviceOutputsInverted(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
   }
-  _give_if_top_call();
-  return ret;
+  setOutputsInverted(device_index);
 }
 
-
-int I2SClass::read(){
-
+void PCA9685::setAllDevicesOutputsInverted()
+{
+  for (DeviceIndex device_index=0; device_index<device_count_; ++device_index)
+  {
+    setOutputsInverted(device_index);
+  }
 }
 
-int I2SClass::read(void* buffer, size_t size){
-
+void PCA9685::setSingleDeviceOutputsNotInverted(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  setOutputsNotInverted(device_index);
 }
 
-size_t I2SClass::write(uint8_t data){
-
+void PCA9685::setAllDevicesOutputsNotInverted()
+{
+  for (DeviceIndex device_index=0; device_index<device_count_; ++device_index)
+  {
+    setOutputsNotInverted(device_index);
+  }
 }
 
-
-size_t I2SClass::write(const uint8_t *buffer, size_t size){
-
+void PCA9685::setSingleDeviceOutputsToTotemPole(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  setOutputsToTotemPole(device_index);
 }
 
-// non-blocking version of write
-// In case there is not enough space in buffer to write requested size
-// this function will try to flush the buffer and write requested data with 0 time-out
-size_t I2SClass::write_nonblocking(const void *buffer, size_t size){
-  _take_if_not_holding();
-  if(_initialized){
-    if(_state != I2S_STATE_TRANSMITTER && _state != I2S_STATE_DUPLEX){
-      if(!_enableTransmitter()){
-        _give_if_top_call();
-        return 0; // There was an error switching to transmitter
+void PCA9685::setAllDevicesOutputsToTotemPole()
+{
+  for (DeviceIndex device_index=0; device_index<device_count_; ++device_index)
+  {
+    setOutputsToTotemPole(device_index);
+  }
+}
+
+void PCA9685::setSingleDeviceOutputsToOpenDrain(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  setOutputsToOpenDrain(device_index);
+}
+
+void PCA9685::setAllDevicesOutputsToOpenDrain()
+{
+  for (DeviceIndex device_index=0; device_index<device_count_; ++device_index)
+  {
+    setOutputsToOpenDrain(device_index);
+  }
+}
+
+void PCA9685::setSingleDeviceOutputsLowWhenDisabled(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  setOutputsLowWhenDisabled(device_index);
+}
+
+void PCA9685::setAllDevicesOutputsLowWhenDisabled()
+{
+  for (DeviceIndex device_index=0; device_index<device_count_; ++device_index)
+  {
+    setOutputsLowWhenDisabled(device_index);
+  }
+}
+
+void PCA9685::setSingleDeviceOutputsHighWhenDisabled(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  setOutputsHighWhenDisabled(device_index);
+}
+
+void PCA9685::setAllDevicesOutputsHighWhenDisabled()
+{
+  for (DeviceIndex device_index=0; device_index<device_count_; ++device_index)
+  {
+    setOutputsHighWhenDisabled(device_index);
+  }
+}
+
+void PCA9685::setSingleDeviceOutputsHighImpedanceWhenDisabled(DeviceAddress device_address)
+{
+  int device_index = deviceAddressToDeviceIndex(device_address);
+  if (device_index < 0)
+  {
+    return;
+  }
+  setOutputsHighImpedanceWhenDisabled(device_index);
+}
+
+void PCA9685::setAllDevicesOutputsHighImpedanceWhenDisabled()
+{
+  for (DeviceIndex device_index=0; device_index<device_count_; ++device_index)
+  {
+    setOutputsHighImpedanceWhenDisabled(device_index);
+  }
+}
+
+// private
+
+int PCA9685::deviceAddressToDeviceIndex(DeviceAddress device_address)
+{
+  int device_index = DEVICE_INDEX_NONE;
+  if (device_address == DEVICE_ADDRESS_ALL)
+  {
+    device_index = DEVICE_INDEX_ALL;
+  }
+  else if (device_address == DEVICE_ADDRESS_GROUP0)
+  {
+    device_index = DEVICE_INDEX_GROUP0;
+  }
+  else if (device_address == DEVICE_ADDRESS_GROUP1)
+  {
+    device_index = DEVICE_INDEX_GROUP1;
+  }
+  else if (device_address == DEVICE_ADDRESS_GROUP2)
+  {
+    device_index = DEVICE_INDEX_GROUP2;
+  }
+  else
+  {
+    for (uint8_t index=0; index<device_count_; ++index)
+    {
+      if (device_address == device_addresses_[index])
+      {
+        device_index = index;
+        break;
       }
     }
-    if(availableForWrite() < size){
-      flush();
-    }
-    if(_output_ring_buffer != NULL){
-      if(pdTRUE == xRingbufferSend(_output_ring_buffer, buffer, size, 0)){
-        _give_if_top_call();
-        return size;
-      }else{
-        log_w("I2S could not write all data into ring buffer!");
-        _give_if_top_call();
-        return 0;
-      }
-    }
-  } // if(_initialized)
-  return 0;
-  _give_if_top_call(); // this should not be needed
-}
-
-/*
-  Read 1 sample from internal buffer and return it.
-  Repeated peeks will return the same sample until read is called.
-*/
-int I2SClass::peek(){
-  _take_if_not_holding();
-  int ret = 0;
-  if(_initialized && _input_ring_buffer != NULL && !_peek_buff_valid){
-    size_t item_size = 0;
-    void *item = NULL;
-
-    item = xRingbufferReceiveUpTo(_input_ring_buffer, &item_size, 0, _bitsPerSample/8); // fetch 1 sample
-    if (item != NULL && item_size == _bitsPerSample/8){
-      _peek_buff = *((int*)item);
-      vRingbufferReturnItem(_input_ring_buffer, item);
-      _peek_buff_valid = true;
-    }
-
-  } // if(_initialized)
-  if(_peek_buff_valid){
-    ret = _peek_buff;
   }
-  _give_if_top_call();
-  return ret;
+  return device_index;
 }
 
-void I2SClass::flush(){
-  _take_if_not_holding();
-  if(_initialized){
-    const size_t single_dma_buf = _i2s_dma_buffer_size*(_bitsPerSample/8)*2;
-    size_t item_size = 0;
-    void *item = NULL;
-    if(_output_ring_buffer != NULL){
-      item = xRingbufferReceiveUpTo(_output_ring_buffer, &item_size, 0, single_dma_buf);
-      if (item != NULL){
-        _fix_and_write(item, item_size);
-        vRingbufferReturnItem(_output_ring_buffer, item);
-      }
-    }
-  } // if(_initialized)
-  _give_if_top_call();
+PCA9685::Mode1Register PCA9685::readMode1Register(DeviceIndex device_index)
+{
+  Mode1Register mode1_register;
+  read(device_index,MODE1_REGISTER_ADDRESS,mode1_register.data);
+  return mode1_register;
 }
 
-// Bytes available to write
-int I2SClass::availableForWrite(){
-  _take_if_not_holding();
-  int ret = 0;
-  if(_initialized){
-    if(_output_ring_buffer != NULL){
-      ret = (int)xRingbufferGetCurFreeSize(_output_ring_buffer);
-    }
-  } // if(_initialized)
-  _give_if_top_call();
-  return ret;
+PCA9685::Mode2Register PCA9685::readMode2Register(DeviceIndex device_index)
+{
+  Mode2Register mode2_register;
+  read(device_index,MODE2_REGISTER_ADDRESS,mode2_register.data);
+  return mode2_register;
 }
 
-int I2SClass::_enableTransmitter(){
-  if(_state != I2S_STATE_DUPLEX && _state != I2S_STATE_TRANSMITTER){
-    _state = I2S_STATE_TRANSMITTER;
-    return _applyPinSetting();
-  }
-  return 1; // Ok
+void PCA9685::sleep(DeviceIndex device_index)
+{
+  Mode1Register mode1_register = readMode1Register(device_index);
+  mode1_register.fields.sleep = SLEEP;
+  write(device_addresses_[device_index],MODE1_REGISTER_ADDRESS,mode1_register.data);
 }
 
-void I2SClass::_tx_done_routine(uint8_t* prev_item){
-  static bool prev_item_valid = false;
-  const size_t single_dma_buf = _i2s_dma_buffer_size*(_bitsPerSample/8)*2; // *2 for stereo - it has double number of samples for 2 channels
-  static size_t item_size = 0;
-  static size_t prev_item_size = 0;
-  static void *item = NULL;
-  static int prev_item_offset = 0;
-  static size_t bytes_written = 0;
-
-  if(prev_item_valid){ // use item from previous round
-    _fix_and_write(prev_item+prev_item_offset, prev_item_size, &bytes_written);
-    if(prev_item_size == bytes_written){
-      prev_item_valid = false;
-    } // write size check
-    prev_item_offset = bytes_written;
-    prev_item_size -= bytes_written;
-  } // prev_item_valid
-
-  if(_output_ring_buffer != NULL && (_buffer_byte_size - xRingbufferGetCurFreeSize(_output_ring_buffer) >= single_dma_buf)){ // fill up the I2S DMA buffer
-    bytes_written = 0;
-    item_size = 0;
-    if(_buffer_byte_size - xRingbufferGetCurFreeSize(_output_ring_buffer) >= _i2s_dma_buffer_size*(_bitsPerSample/8)){ // don't read from almost empty buffer
-      item = xRingbufferReceiveUpTo(_output_ring_buffer, &item_size, pdMS_TO_TICKS(0), single_dma_buf);
-      if (item != NULL){
-        _fix_and_write(item, item_size, &bytes_written);
-        if(item_size != bytes_written){ // save item that was not written correctly for later
-          memcpy(prev_item, (void*)&((uint8_t*)item)[bytes_written], item_size-bytes_written);
-          prev_item_size = item_size - bytes_written;
-          prev_item_offset = 0;
-          prev_item_valid = true;
-        } // save item that was not written correctly for later
-        vRingbufferReturnItem(_output_ring_buffer, item);
-      } // Check received item
-    } // don't read from almost empty buffer
-  } // fill up the I2S DMA buffer
-}
-
-void I2SClass::_onTransferComplete(){
-  uint8_t prev_item[_i2s_dma_buffer_size*4];
-  esp_i2s::i2s_event_t i2s_event;
-
-  while(true){
-    xQueueReceive(_i2sEventQueue, &i2s_event, portMAX_DELAY);
-    if(i2s_event.type == esp_i2s::I2S_EVENT_TX_DONE){
-      _tx_done_routine(prev_item);
-    }
-  } // infinite loop
-}
-
-void I2SClass::onDmaTransferComplete(void*){
-  I2S._onTransferComplete();
-}
-
-void I2SClass::_take_if_not_holding(){
-  TaskHandle_t mutex_holder = xSemaphoreGetMutexHolder(_i2s_general_mutex);
-  if(mutex_holder != NULL && mutex_holder == xTaskGetCurrentTaskHandle()){
-    ++_nesting_counter;
-    return; // we are already holding this mutex - no need to take it
-  }
-
-  // we are not holding the mutex - wait for it and take it
-  if(xSemaphoreTake(_i2s_general_mutex, portMAX_DELAY) != pdTRUE ){
-    log_e("I2S internal mutex take returned with error");
-  }
-  //_give_if_top_call(); // call after this function
-}
-
-void I2SClass::_give_if_top_call(){
-  if(_nesting_counter){
-    --_nesting_counter;
-  }else{
-    if(xSemaphoreGive(_i2s_general_mutex) != pdTRUE){
-      log_e("I2S internal mutex give error");
-    }
+void PCA9685::wake(DeviceIndex device_index)
+{
+  Mode1Register mode1_register = readMode1Register(device_index);
+  mode1_register.fields.sleep = WAKE;
+  mode1_register.fields.ai = AUTO_INCREMENT_ENABLED;
+  write(device_addresses_[device_index],MODE1_REGISTER_ADDRESS,mode1_register.data);
+  if (mode1_register.fields.restart == RESTART_ENABLED)
+  {
+    delay(1);
+    mode1_register.fields.restart = RESTART_CLEAR;
+    write(device_addresses_[device_index],MODE1_REGISTER_ADDRESS,mode1_register.data);
   }
 }
 
-// Prepares data and writes them to IDF i2s driver.
-// This counters possible bug in ESP IDF I2S driver
-// output - bytes to be sent
-// size - number of bytes in original buffer
-// bytes_written - number of bytes used from original buffer
-// actual_bytes_written - number of bytes written by i2s_write after fix
-void I2SClass::_fix_and_write(void *output, size_t size, size_t *bytes_written, size_t *actual_bytes_written){
-  ulong src_ptr = 0;
-  uint8_t* buff = NULL;
-  size_t buff_size = size;
-  switch(_bitsPerSample){
-    case 8:
-      buff_size = size *2;
-      buff = (uint8_t*)calloc(buff_size, sizeof(uint8_t));
-      if(buff == NULL){
-        log_e("callock error");
-        if(bytes_written != NULL){ *bytes_written = 0; }
-        return;
-      }
-      for(int i = 0; i < buff_size ; i+=4){
-        ((uint8_t*)buff)[i+3] = (uint16_t)((uint8_t*)output)[src_ptr++];
-        ((uint8_t*)buff)[i+1] = (uint16_t)((uint8_t*)output)[src_ptr++];
-      }
-    break;
-    case 16:
-      buff = (uint8_t*)malloc(buff_size);
-      if(buff == NULL){
-        log_e("malloc error");
-        if(bytes_written != NULL){ *bytes_written = 0; }
-        return;
-      }
-      for(int i = 0; i < size/2; i += 2 ){
-        ((uint16_t*)buff)[i]   = ((uint16_t*)output)[i+1]; // [1] <- [0]
-        ((uint16_t*)buff)[i+1] = ((uint16_t*)output)[i]; // [0] <- [1]
-      }
-    break;
-    case 24:
-      buff = (uint8_t*)output;
-      break;
-    case 32:
-      buff = (uint8_t*)output;
-      break;
-    default: ; // Do nothing
-  } // switch
-
-  size_t _bytes_written;
-  esp_err_t ret = esp_i2s::i2s_write((esp_i2s::i2s_port_t) _deviceIndex, buff, buff_size, &_bytes_written, 0); // fixed
-  if(ret != ESP_OK){
-    log_e("Error: writing data to i2s - function returned with err code %d", ret);
-  }
-  if(ret == ESP_OK && buff_size != _bytes_written){
-    log_w("Warning: writing data to i2s - written %d B instead of requested %d B", _bytes_written, buff_size);
-  }
-  // free if the buffer was actually allocated
-  if(_bitsPerSample == 8 || _bitsPerSample == 16){
-    free(buff);
-  }
-  if(bytes_written != NULL){
-    *bytes_written = _bitsPerSample == 8 ? _bytes_written/2 : _bytes_written;
-  }
-  if(actual_bytes_written != NULL){
-    *actual_bytes_written = _bytes_written;
+void PCA9685::wakeAll()
+{
+  for (DeviceIndex device_index=0; device_index<device_count_; ++device_index)
+  {
+    wake(device_index);
   }
 }
 
-I2SClass I2S(I2S_DEVICE, I2S_CLOCK_GENERATOR); // default - half duplex
-
-//--------------------------------------------------------------------------------------------------------------------------------//
-
-#define MP1 (7-1)
-#define MP2 (5-1)
-#define MP3 (3-1)
-#define MP4 (1-1)
-#define MP5 (2-1)
-#define MP6 (4-1)
-#define MP7 (6-1)
-#define MP8 (8-1)
-
-int my_buffer_len = 128; // 128frames * 2bytes a frame
-uint16_t *my_buffer;
-uint8_t step = 0;
-
-//values -128 to 128
-//          MotorPort:   4    5  3  6  2   7  1 8
-int16_t NoU_I2S_motorsPower[] = {0,0,0,0,0,0,0,0};
-
-//bufferIndex is a value between 0 and 127
-uint16_t generateFrame(uint16_t bufferIndex, int16_t* NoU_I2S_motorsPower){
-  uint16_t frame = 0x0000;
-
-  for (uint16_t motorIndex = 0; motorIndex < 8; motorIndex++) {
-    int16_t motorPower = NoU_I2S_motorsPower[motorIndex];
-
-    if ( (motorPower > 0) && (bufferIndex < motorPower)    )  frame |= 0b00000001 << (2*motorIndex);
-    if ( (motorPower < 0) && (bufferIndex < motorPower*-1) )  frame |= 0b00000010 << (2*motorIndex);
-  } 
-  return frame;
+void PCA9685::setPrescale(DeviceIndex device_index,
+  uint8_t prescale)
+{
+  sleep(device_index);
+  write(device_addresses_[device_index],PRE_SCALE_REGISTER_ADDRESS,prescale);
+  wake(device_index);
 }
+
+void PCA9685::getPrescale(DeviceIndex device_index,
+  uint8_t & prescale)
+{
+  read(device_index,PRE_SCALE_REGISTER_ADDRESS,prescale);
+}
+
+uint8_t PCA9685::frequencyToPrescale(Frequency frequency)
+{
+  DurationMicroseconds period_us = MICROSECONDS_PER_SECOND / frequency;
+  period_us = constrain(period_us,PWM_PERIOD_MIN_US,PWM_PERIOD_MAX_US);
+  uint8_t prescale = map(period_us,PWM_PERIOD_MIN_US,PWM_PERIOD_MAX_US,PRE_SCALE_MIN,PRE_SCALE_MAX);
+  return prescale;
+}
+
+PCA9685::Frequency PCA9685::prescaleToFrequency(uint8_t prescale)
+{
+  Frequency frequency = 0;
+  DurationMicroseconds period_us = map(prescale,PRE_SCALE_MIN,PRE_SCALE_MAX,PWM_PERIOD_MIN_US,PWM_PERIOD_MAX_US);
+  if (period_us > 0)
+  {
+    frequency = round((double)MICROSECONDS_PER_SECOND / (double)period_us);
+  }
+  return frequency;
+}
+
+uint8_t PCA9685::channelToDeviceIndex(Channel channel)
+{
+  return channel / CHANNELS_PER_DEVICE;
+}
+
+PCA9685::Channel PCA9685::channelToDeviceChannel(Channel channel)
+{
+  return channel % CHANNELS_PER_DEVICE;
+}
+
+void PCA9685::dutyCycleAndPercentDelayToPulseWidthAndPhaseShift(Percent duty_cycle,
+  Percent percent_delay,
+  Duration & pulse_width,
+  Duration & phase_shift)
+{
+  pulse_width = round(((double)TIME_MAX * duty_cycle) / (double)PERCENT_MAX);
+  phase_shift = round(((double)TIME_MAX * percent_delay) / (double)PERCENT_MAX);
+}
+
+void PCA9685::pulseWidthAndPhaseShiftToDutyCycleAndPercentDelay(Duration pulse_width,
+  Duration phase_shift,
+  Percent & duty_cycle,
+  Percent & percent_delay)
+{
+  duty_cycle = (double)(pulse_width * PERCENT_MAX) / (double)TIME_MAX;
+  percent_delay = (double)(phase_shift * PERCENT_MAX) / (double)TIME_MAX;
+}
+
+void PCA9685::pulseWidthAndPhaseShiftToOnTimeAndOffTime(Duration pulse_width,
+  Duration phase_shift,
+  Time & on_time,
+  Time & off_time)
+{
+  if (pulse_width == TIME_MIN)
+  {
+    on_time = TIME_MIN;
+    off_time = TIME_MAX;
+    return;
+  }
+  if (pulse_width >= TIME_MAX)
+  {
+    on_time = TIME_MAX;
+    off_time = TIME_MIN;
+    return;
+  }
+  on_time = phase_shift % TIME_MAX;
+  off_time = (on_time + pulse_width) % TIME_MAX;
+}
+
+void PCA9685::onTimeAndOffTimeToPulseWidthAndPhaseShift(Time on_time,
+  Time off_time,
+  Duration & pulse_width,
+  Duration & phase_shift)
+{
+  if (on_time == TIME_MAX)
+  {
+    pulse_width = TIME_MAX;
+    phase_shift = TIME_MIN;
+    return;
+  }
+  if (off_time == TIME_MAX)
+  {
+    pulse_width = TIME_MIN;
+    phase_shift = TIME_MIN;
+    return;
+  }
+  if (on_time > off_time)
+  {
+    pulse_width = TIME_MAX - (on_time - off_time);
+    phase_shift = on_time;
+    return;
+  }
+  pulse_width = off_time - on_time;
+  phase_shift = on_time;
+}
+
+void PCA9685::servoPulseDurationToPulseWidthAndPhaseShift(DurationMicroseconds pulse_duration_microseconds,
+  Duration & pulse_width,
+  Duration & phase_shift)
+{
+  phase_shift = 0;
+  pulse_width = (pulse_duration_microseconds * TIME_MAX) / SERVO_PERIOD_MICROSECONDS;
+}
+
+void PCA9685::pulseWidthAndPhaseShiftToServoPulseDuration(Duration pulse_width,
+  Duration phase_shift,
+  DurationMicroseconds & pulse_duration_microseconds)
+{
+  DurationMicroseconds period_us = SERVO_PERIOD_MICROSECONDS;
+  pulse_duration_microseconds = (pulse_width * period_us) / TIME_MAX;
+}
+
+void PCA9685::setOutputsInverted(DeviceIndex device_index)
+{
+  Mode2Register mode2_register = readMode2Register(device_index);
+  mode2_register.fields.invrt = OUTPUTS_INVERTED;
+  write(device_addresses_[device_index],MODE2_REGISTER_ADDRESS,mode2_register.data);
+}
+
+void PCA9685::setOutputsNotInverted(DeviceIndex device_index)
+{
+  Mode2Register mode2_register = readMode2Register(device_index);
+  mode2_register.fields.invrt = OUTPUTS_NOT_INVERTED;
+  write(device_addresses_[device_index],MODE2_REGISTER_ADDRESS,mode2_register.data);
+}
+
+void PCA9685::setOutputsToTotemPole(DeviceIndex device_index)
+{
+  Mode2Register mode2_register = readMode2Register(device_index);
+  mode2_register.fields.outdrv = OUTPUTS_TOTEM_POLE;
+  write(device_addresses_[device_index],MODE2_REGISTER_ADDRESS,mode2_register.data);
+}
+
+void PCA9685::setOutputsToOpenDrain(DeviceIndex device_index)
+{
+  Mode2Register mode2_register = readMode2Register(device_index);
+  mode2_register.fields.outdrv = OUTPUTS_OPEN_DRAIN;
+  write(device_addresses_[device_index],MODE2_REGISTER_ADDRESS,mode2_register.data);
+}
+
+void PCA9685::setOutputsLowWhenDisabled(DeviceIndex device_index)
+{
+  Mode2Register mode2_register = readMode2Register(device_index);
+  mode2_register.fields.outne = OUTPUTS_LOW_WHEN_DISABLED;
+  write(device_addresses_[device_index],MODE2_REGISTER_ADDRESS,mode2_register.data);
+}
+
+void PCA9685::setOutputsHighWhenDisabled(DeviceIndex device_index)
+{
+  Mode2Register mode2_register = readMode2Register(device_index);
+  mode2_register.fields.outne = OUTPUTS_HIGH_WHEN_DISABLED;
+  write(device_addresses_[device_index],MODE2_REGISTER_ADDRESS,mode2_register.data);
+}
+
+void PCA9685::setOutputsHighImpedanceWhenDisabled(DeviceIndex device_index)
+{
+  Mode2Register mode2_register = readMode2Register(device_index);
+  mode2_register.fields.outne = OUTPUTS_HIGH_IMPEDANCE_WHEN_DISABLED;
+  write(device_addresses_[device_index],MODE2_REGISTER_ADDRESS,mode2_register.data);
+}
+
+template<typename T>
+void PCA9685::write(DeviceAddress device_address,
+  uint8_t register_address,
+  T data)
+{
+  int byte_count = sizeof(data);
+  wire_ptr_->beginTransmission(device_address);
+  wire_ptr_->write(register_address);
+  uint8_t write_byte;
+  for (int byte_n=0; byte_n<byte_count; ++byte_n)
+  {
+    write_byte = (data >> (BITS_PER_BYTE * byte_n)) & BYTE_MAX;
+    wire_ptr_->write(write_byte);
+  }
+  wire_ptr_->endTransmission();
+}
+
+template<typename T>
+void PCA9685::read(DeviceIndex device_index,
+  uint8_t register_address,
+  T & data)
+{
+  int byte_count = sizeof(data);
+  int device_address = device_addresses_[device_index];
+  wire_ptr_->beginTransmission(device_address);
+  wire_ptr_->write(register_address);
+  wire_ptr_->endTransmission();
+
+  wire_ptr_->requestFrom(device_address,byte_count);
+  data = 0;
+  for (int byte_n=0; byte_n<byte_count; ++byte_n)
+  {
+    data |= (wire_ptr_->read()) << (BITS_PER_BYTE * byte_n);
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------
+
+PCA9685 pca9685;
+
+uint8_t portMap [8][2] = {{4,5},{6,7},{8,9},{10,11},{14,15},{12,13},{2,3},{0,1}};
 
 void NoU_I2S_Begin() {
-  my_buffer = (uint16_t*) malloc(my_buffer_len*2); //*2 cause there are 2 bytes in a 16bit frame
+  Wire.setPins(35, 36);
 
-  //I2S.setAllPins(4,5,-1,6,-1); // you can change default pins; order of pins = (sckPin, fsPin (word), sdPin, outSdPin, inSdPin)
-  //SRCLK, RCLK, -1. SER, -1
-  I2S.setAllPins(12,13,-1,14,-1); // you can change default pins; order of pins = (SCK, CS, -1, MOSI, -1)
-  I2S.begin();
+  pca9685.setupSingleDevice(Wire, 0x40);
 
-  NoU_I2S_Update();
+  pca9685.setupOutputEnablePin(12);
+  pca9685.enableOutputs(12);
+
+  pca9685.setToFrequency(1500);
 }
 
-void NoU_I2S_Update(){
-  for (uint16_t i = 0; i < my_buffer_len/2; i++) {
-    my_buffer[2*i] = generateFrame(2*i+1, NoU_I2S_motorsPower);
-    my_buffer[2*i+1] = generateFrame(2*i, NoU_I2S_motorsPower);
-  } 
-  I2S.write_nonblocking((void*)my_buffer, my_buffer_len*2);
-}
 
-void NoU_I2S_SetMotor(uint8_t motorPort, int16_t motorPower){
-	if (motorPower > 128) motorPower = 128;
-	if (motorPower < -128) motorPower = -128;
+void NoU_I2S_SetMotor(uint8_t motorPort, float motorPower){
+  //if(motorPort == 1) Serial.println(motorPower);
+  
+  if(motorPower >= 0){
+    pca9685.setChannelDutyCycle(portMap[motorPort-1][0], abs(motorPower*100));
+    pca9685.setChannelDutyCycle(portMap[motorPort-1][1], 0);
 	
-	if (motorPort == 1) {NoU_I2S_motorsPower[MP1] = motorPower; Serial.println(motorPower); }
-	if (motorPort == 2) NoU_I2S_motorsPower[MP2] = motorPower;
-	if (motorPort == 3) NoU_I2S_motorsPower[MP3] = motorPower;
-	if (motorPort == 4) NoU_I2S_motorsPower[MP4] = motorPower;
-	if (motorPort == 5) NoU_I2S_motorsPower[MP5] = motorPower;
-	if (motorPort == 6) NoU_I2S_motorsPower[MP6] = motorPower;
-	if (motorPort == 7) NoU_I2S_motorsPower[MP7] = motorPower;
-	if (motorPort == 8) NoU_I2S_motorsPower[MP8] = motorPower;
+  } else {
+    pca9685.setChannelDutyCycle(portMap[motorPort-1][0], 0);
+    pca9685.setChannelDutyCycle(portMap[motorPort-1][1], abs(motorPower*100));
+	
+  }
 }
