@@ -1,4 +1,4 @@
-#include "Alfredo_Encoder.h"
+#include "Alfredo_NoU3_Encoder.h"
 
 RotaryEncoder::RotaryEncoder( uint8_t encoderPinA, uint8_t encoderPinB)
 {

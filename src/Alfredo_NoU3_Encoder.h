@@ -1,5 +1,6 @@
-#ifndef _Alfredo_Encoder_h
-#define _Alfredo_Encoder_h
+
+#ifndef ALFREDO_NOU3_ENCODER_H
+#define ALFREDO_NOU3_ENCODER_H
 
 #if defined( ARDUINO ) && ARDUINO >= 100
   #include <Arduino.h>

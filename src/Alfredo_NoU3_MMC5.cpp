@@ -12,7 +12,7 @@
   See LICENSE.md for more information.
 */
 
-#include "mmc.h"
+#include "Alfredo_NoU3_MMC5.h"
 
 bool SFE_MMC5983MA::setShadowBit(uint8_t registerAddress, const uint8_t bitMask, bool doWrite)
 {

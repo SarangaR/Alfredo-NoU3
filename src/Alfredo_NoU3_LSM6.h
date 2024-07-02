@@ -17,6 +17,9 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifndef ALFREDO_NOU3_LSM6_H
+#define ALFREDO_NOU3_LSM6_H
+
 #include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -64,3 +67,5 @@ class LSM6DSOXClass {
 extern LSM6DSOXClass IMU_LSM6DSOX;
 #undef IMU
 #define IMU IMU_LSM6DSOX
+
+#endif

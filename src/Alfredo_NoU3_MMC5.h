@@ -12,8 +12,8 @@
   See LICENSE.md for more information.
 */
 
-#ifndef _SPARKFUN_MMC5983MA_
-#define _SPARKFUN_MMC5983MA_
+#ifndef ALFREDO_NOU3_MMC5_H
+#define ALFREDO_NOU3_MMC5_H
 
 #include <Arduino.h>
 #include <Wire.h>

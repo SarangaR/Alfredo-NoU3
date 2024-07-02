@@ -1,11 +1,11 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#ifndef H_ALFREDO_NOU3_I2S
-#define H_ALFREDO_NOU3_I2S
+#ifndef ALFREDO_NOU3_PCA9_H
+#define ALFREDO_NOU3_PCA9_H
 
-void NoU_I2S_Begin();
-void NoU_I2S_SetMotor(uint8_t motorPort, float motorPower);
+void NoU3_PCA9_Begin();
+void NoU3_PCA9_SetMotor(uint8_t motorPort, float motorPower);
 
 class PCA9685
 {
@@ -366,4 +366,4 @@ private:
 
 };
 
-#endif // H_ALFREDO_NOU3_I2S
+#endif

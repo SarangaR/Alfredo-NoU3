@@ -17,7 +17,7 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "LSM6DSOX.h"
+#include "Alfredo_NoU3_LSM6.h"
 
 #define LSM6DSOX_ADDRESS            0x6A
 
@@ -277,8 +277,4 @@ int LSM6DSOXClass::writeRegister(uint8_t address, uint8_t value)
   return 1;
 }
 
-//#ifdef LSM6DS_DEFAULT_SPI
-//LSM6DSOXClass IMU_LSM6DSOX(LSM6DS_DEFAULT_SPI, PIN_SPI_SS1, LSM6DS_INT);
-//#else
 LSM6DSOXClass IMU_LSM6DSOX(Wire1, LSM6DSOX_ADDRESS);
-//#endif

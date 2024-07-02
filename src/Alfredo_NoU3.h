@@ -1,10 +1,10 @@
 #ifndef ALFREDO_NOU3_H
 #define ALFREDO_NOU3_H
 
-#include "Alfredo_NoU3_I2S.h"
-#include "Alfredo_Encoder.h"
-#include "LSM6DSOX.h"
-#include "mmc.h"
+#include "Alfredo_NoU3_PCA9.h"
+#include "Alfredo_NoU3_Encoder.h"
+#include "Alfredo_NoU3_LSM6.h"
+#include "Alfredo_NoU3_MMC5.h"
 
 #include <inttypes.h>
 
@@ -48,8 +48,8 @@
 
 class NoU_Agent {
     public:
-		void begin(){ NoU_I2S_Begin(); };
-		void setMotor(uint8_t motorPort, float motorPower){ NoU_I2S_SetMotor(motorPort, motorPower); };
+		void begin(){ NoU3_PCA9_Begin(); };
+		void setMotor(uint8_t motorPort, float motorPower){ NoU3_PCA9_SetMotor(motorPort, motorPower); };
 };
 
 class NoU_Motor {
