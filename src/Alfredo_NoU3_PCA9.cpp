@@ -1042,7 +1042,7 @@ PCA9685 pca9685;
 
 uint8_t portMap [8][2] = {{4,5},{6,7},{8,9},{10,11},{14,15},{12,13},{2,3},{0,1}};
 
-void NoU_I2S_Begin() {
+void NoU3_PCA9_Begin() {
   Wire.setPins(35, 36);
 
   pca9685.setupSingleDevice(Wire, 0x40);
@@ -1054,7 +1054,7 @@ void NoU_I2S_Begin() {
 }
 
 
-void NoU_I2S_SetMotor(uint8_t motorPort, float motorPower){
+void NoU3_PCA9_SetMotor(uint8_t motorPort, float motorPower){
   //if(motorPort == 1) Serial.println(motorPower);
   
   if(motorPower >= 0){
