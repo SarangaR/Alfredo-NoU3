@@ -8,17 +8,13 @@
 
 #include <inttypes.h>
 
-// Pins (TODO: These should be static variables?)
-// Currently Unused definitions (also might be wrong pins?)
-#define PIN_MOTOR_STORE 12
-#define PIN_MOTOR_CLOCK 13
-#define PIN_MOTOR_DATA 14
-#define PIN_MOTOR_NSLEEP -1 //(TODO: TBD)
+#define PIN_SNS_VERSION  1
+#define PIN_SNS_VIN      2
 
-#define PIN_SERVO_1 17
-#define PIN_SERVO_2 18
-#define PIN_SERVO_3 8
-#define PIN_SERVO_4 9
+#define PIN_SERVO_1 4
+#define PIN_SERVO_2 5
+#define PIN_SERVO_3 6
+#define PIN_SERVO_4 7
 
 #define RSL_PIN 45
 
@@ -46,10 +42,13 @@
 #define TWO_MOTORS 0
 #define FOUR_MOTORS 1
 
+
 class NoU_Agent {
     public:
 		void begin(){ NoU3_PCA9_Begin(); };
 		void setMotor(uint8_t motorPort, float motorPower){ NoU3_PCA9_SetMotor(motorPort, motorPower); };
+		float getBatteryVoltage(){ return analogReadMilliVolts(PIN_SNS_VIN) * 0.001 * 7.818; };
+		float getVersionVoltage(){ return analogReadMilliVolts(PIN_SNS_VERSION) * 0.001 ; };
 };
 
 class NoU_Motor {

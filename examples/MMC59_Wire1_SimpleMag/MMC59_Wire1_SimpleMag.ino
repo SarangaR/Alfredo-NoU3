@@ -3,7 +3,7 @@
 
 SFE_MMC5983MA myMag;
 
-int interruptPin = 34;
+int interruptPin = 47;
 
 volatile bool newDataAvailable = true;
 uint32_t rawValueX = 0;

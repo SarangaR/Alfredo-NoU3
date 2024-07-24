@@ -8,14 +8,13 @@
 #include <PestoLink-Receive.h>
 #include <Alfredo_NoU3.h>
 
-#define PIN_LED_RED 46
-
 // If your robot has more than a drivetrain and one servo, add those actuators here 
 NoU_Motor frontLeftMotor(1);
 NoU_Motor frontRightMotor(2);
 NoU_Motor rearLeftMotor(3);
 NoU_Motor rearRightMotor(4);
-NoU_Servo servo(3);
+
+NoU_Servo servo(1);
 
 // This creates the drivetrain object, you shouldn't have to mess with this
 NoU_Drivetrain drivetrain(&frontLeftMotor, &frontRightMotor, &rearLeftMotor, &rearRightMotor);
@@ -25,8 +24,6 @@ void setup() {
     NoU3.begin();
     PestoLink.begin("ESP32_Bluetooth");
     Serial.begin(115200);
-    pinMode(PIN_LED_RED, OUTPUT);
-    digitalWrite(PIN_LED_RED, LOW);
 
 // If a motor in your drivetrain is spinning the wrong way, change the value for it here from 'false' to 'true'
     frontLeftMotor.setInverted(false);
@@ -59,12 +56,10 @@ void loop() {
 
 // Here we decide what the servo angle will be based on if the Q key is pressed ()
     if (PestoLink.buttonHeld(0)) {
-        servoAngle = 0;
-        digitalWrite(PIN_LED_RED, HIGH);
+        servoAngle = 70;
     }
     else {
-        servoAngle = 180;
-        digitalWrite(PIN_LED_RED, LOW);
+        servoAngle = 110;
     }
 
 // Here we set the drivetrain motor speeds and servo angle based on what we found in the above code
