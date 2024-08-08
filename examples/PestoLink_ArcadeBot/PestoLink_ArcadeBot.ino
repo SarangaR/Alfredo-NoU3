@@ -37,6 +37,10 @@ void setup() {
 }
 
 void loop() {
+
+    uint8_t batteryByte = 255.0 * NoU3.getBatteryVoltage() / 12.0;
+    PestoLink.setBatteryVal(batteryByte);
+
 // Here we define the variables we use in the loop
     int throttle = 0;
     int rotation = 0;

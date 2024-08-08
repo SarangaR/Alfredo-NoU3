@@ -279,6 +279,7 @@ void RSL::setState(uint8_t state) {
     RSL::state = state;
 }
 
+//TODO: people have a lot of trouble with the RSL. make it smarter
 void RSL::update() {
     switch (state) {
         case RSL_OFF:
