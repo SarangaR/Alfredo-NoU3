@@ -15,16 +15,7 @@
 #define PIN_SERVO_2 5
 #define PIN_SERVO_3 6
 #define PIN_SERVO_4 7
-
 #define RSL_PIN 45
-
-// PWM Channels  (TODO: This should be an enum?)
-// Channel 0 and 1 are already in use?
-#define CHANNEL_SERVO_1 2
-#define CHANNEL_SERVO_2 3
-#define CHANNEL_SERVO_3 4
-#define CHANNEL_SERVO_4 5
-#define RSL_CHANNEL 6
 
 // PWM Configuration
 const int SERVO_PWM_RES = 13; // bits

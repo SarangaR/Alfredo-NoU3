@@ -278,16 +278,16 @@ void RSL::setState(uint8_t state) {
 void RSL::update() {
     switch (state) {
         case RSL_OFF:
-            ledcWrite(RSL_CHANNEL, 1);
+            ledcWrite(RSL_PIN, 1);
             break;
         case RSL_ON:
-            ledcWrite(RSL_CHANNEL, (1 << RSL_PWM_RES) - 1);
+            ledcWrite(RSL_PIN, (1 << RSL_PWM_RES) - 1);
             break;
         case RSL_ENABLED:
-            ledcWrite(RSL_CHANNEL, millis() % 1000 < 500 ? (millis() % 500) * 2 : (500 - (millis() % 500)) * 2);
+            ledcWrite(RSL_PIN, millis() % 1000 < 500 ? (millis() % 500) * 2 : (500 - (millis() % 500)) * 2);
             break;
         case RSL_DISABLED:
-            ledcWrite(RSL_CHANNEL, (1 << RSL_PWM_RES) - 1);
+            ledcWrite(RSL_PIN, (1 << RSL_PWM_RES) - 1);
             break;
     }
 }
