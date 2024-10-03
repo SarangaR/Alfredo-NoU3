@@ -70,6 +70,12 @@ NoU_Servo::NoU_Servo(uint8_t servoPort, uint16_t minPulse, uint16_t maxPulse) {
         case 4:
             pin = PIN_SERVO_4;
             break;
+        case 5:
+            pin = PIN_SERVO_5;
+            break;
+        case 6:
+            pin = PIN_SERVO_6;
+            break;
     }
     this->minPulse = minPulse;
     this->maxPulse = maxPulse;

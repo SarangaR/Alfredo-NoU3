@@ -15,6 +15,8 @@
 #define PIN_SERVO_2 5
 #define PIN_SERVO_3 6
 #define PIN_SERVO_4 7
+#define PIN_SERVO_5 8
+#define PIN_SERVO_6 9
 #define RSL_PIN 45
 
 // PWM Configuration
