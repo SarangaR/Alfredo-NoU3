@@ -26,11 +26,11 @@
 #define CHANNEL_SERVO_4 5
 #define RSL_CHANNEL 6
 
-// PWM Configuration (TODO: These should be static variables?)
-#define SERVO_PWM_RES 13 // bits
-#define SERVO_PWM_FREQ 50 // Hz
-#define RSL_PWM_RES 10 // bits
-#define RSL_PWM_FREQ 1000 // Hz
+// PWM Configuration
+const int SERVO_PWM_RES = 13; // bits
+const int SERVO_PWM_FREQ = 50; // Hz
+const int RSL_PWM_RES = 10; // bits
+const int RSL_PWM_FREQ = 1000; // Hz
 
 // RSL states (TODO: This should be an enum?)
 #define RSL_OFF 0
@@ -46,7 +46,6 @@
 class NoU_Agent {
     public:
 		void begin(){ NoU3_PCA9_Begin(); };
-		void setMotor(uint8_t motorPort, float motorPower){ NoU3_PCA9_SetMotor(motorPort, motorPower); };
 		float getBatteryVoltage(){ return analogReadMilliVolts(PIN_SNS_VIN) * 0.001 * 7.818; };
 		float getVersionVoltage(){ return analogReadMilliVolts(PIN_SNS_VERSION) * 0.001 ; };
 };

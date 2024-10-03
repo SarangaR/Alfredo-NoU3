@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Robot Programming with PestoLink-Receive &mdash; Alfredo-NoU3 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d563738"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Tutorials" href="tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Alfredo-NoU3
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorial.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Robot Programming with PestoLink-Receive</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#basics">Basics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#uploading">Uploading</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bluetooth-pairing">Bluetooth Pairing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#robot-programming">Robot Programming</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#on-screen-joystick">On-Screen Joystick</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Alfredo-NoU3</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tutorial.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Robot Programming with PestoLink-Receive</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/robot_programming_tutorial_Pesto_Link.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="robot-programming-with-pestolink-receive">
+<h1>Robot Programming with PestoLink-Receive<a class="headerlink" href="#robot-programming-with-pestolink-receive" title="Link to this heading"></a></h1>
+<p>This tutorial will guide you through programming, uploading, and driving a robot. In this tutorial we will use the Arduino libraries <a class="reference external" href="https://github.com/AlfredoSystems/Alfredo-NoU3/">Alfredo-NoU3</a> and <a class="reference external" href="https://github.com/AlfredoSystems/PestoLink-Receive/">PestoLink-Receive</a>. We will also use the web app <a class="reference external" href="https://pestol.ink/">PestoLink</a> to control a robot wirelessly.</p>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Get the Arduino IDE.</strong> This lets us write and upload programs to our robot. Download it from the <a class="reference external" href="https://www.arduino.cc/en/main/software">Arduino website</a> and install it.</p></li>
+<li><p><strong>Open the Library Manager</strong> In the Arduino IDE, open the Library Manager by clicking the books icon on the left.</p></li>
+<li><p><strong>Install the</strong> <a class="reference external" href="https://github.com/AlfredoSystems/Alfredo-NoU3/">Alfredo-NoU3</a> <strong>and</strong> <a class="reference external" href="https://github.com/AlfredoSystems/PestoLink-Receive/">PestoLink-Receive</a> <strong>libraries.</strong> Click <em>Filter your search…</em> and type <strong>Alfredo-NoU3</strong>, then click <strong>INSTALL</strong>. Do the same for the library <strong>PestoLink_Receive</strong>.</p></li>
+<li><p><strong>Configure the Arduino IDE to upload to a NoU3.</strong> In the Arduino IDE, click <strong>File</strong> &gt; <strong>Preferences</strong>. Paste the following in the <strong>Additional Boards Manager URLs</strong> field.</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">raw</span><span class="o">.</span><span class="n">githubusercontent</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">espressif</span><span class="o">/</span><span class="n">arduino</span><span class="o">-</span><span class="n">esp32</span><span class="o">/</span><span class="n">gh</span><span class="o">-</span><span class="n">pages</span><span class="o">/</span><span class="n">package_esp32_index</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>Then, go to <strong>Tools</strong> &gt; <strong>Board</strong> &gt; <strong>Boards Manager</strong>. Search for “ESP32” and install the package “esp32 by Espressif Systems”.</p>
+<ol class="arabic simple" start="5">
+<li><p><strong>Decide what device you will use to drive your robot.</strong> With a laptop, you can control your robot using the keyboard or a gamepad (for example an Xbox controller). With a smartphone, you can drive your robot with the touch screen.</p></li>
+<li><p><strong>Pick a Web Browser.</strong> PestoLink works best with Google Chrome on Windows, Android, MacOS, Linux, and ChromeOS. On iOS <a class="reference external" href="https://apps.apple.com/us/app/bluefy-web-ble-browser/id1492822055">Bluefy</a> is the best option.</p></li>
+<li><p><strong>Bookmark PestoLink.</strong> go to <a class="reference external" href="https://pestol.ink/">https://pestol.ink/</a> and bookmark the page.</p></li>
+</ol>
+</section>
+<section id="basics">
+<h2>Basics<a class="headerlink" href="#basics" title="Link to this heading"></a></h2>
+<p>We’re going to start by writing a simple program to test using PestoLink to control any motors or servos connected to your NoU3 via the ESP32’s Bluetooth.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For this section, you’ll at least need Alfredo NoU3 ready to drive some motors. Follow our <a class="reference external" href="https://youtu.be/rcdbkeYA1rs">Build Tutorial</a> to set that up before continuing here.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>If you just need an example program to test motor and servo movement without an explanation, use the <strong>motor party</strong> example sketch included with Alfredo-NoU3.</p>
+</div>
+<p>When you open up the Arduino IDE, you’ll see an empty program (a “sketch”) that looks like this:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>These are two <strong>functions</strong>, or chunks of code. When your program runs on an ESP32, the <code class="docutils literal notranslate"><span class="pre">setup</span></code> function runs once when the program starts, then the <code class="docutils literal notranslate"><span class="pre">loop</span></code> function runs repeatedly. Right now, they’re empty, but we’ll add some code to them soon.</p>
+<p>Before that, we need to make some changes at the start of the sketch, before the functions. First, we need to specify that we want to use the libraries we installed earlier, Alfredo-NoU3 and PestoLink-Receive. To do that, add the following lines to the top of the file.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Alfredo_NoU3.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;PestoLink-Receive.h&gt;</span>
+</pre></div>
+</div>
+<p>These statements reference some code from a separate file that you want to have included in your final program.</p>
+<p>Next, we’ll declare the motors and servos we want to use.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NoU_Motor</span><span class="w"> </span><span class="nf">leftMotor</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">NoU_Servo</span><span class="w"> </span><span class="nf">armServo</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>In the first line here, we say that there’s a <a class="reference internal" href="nou_motor.html#_CPPv49NoU_Motor" title="NoU_Motor"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">NoU_Motor</span></code></a> called <code class="docutils literal notranslate"><span class="pre">leftMotor</span></code> assigned to motor port 2. You can check which motor port your motor is plugged into by checking for the little labels where the wires plug in. For example, motor port 2 has labels that say <strong>M2-</strong> and <strong>M2+</strong> on the NoU3. Similarly, in the second line, we construct an object called <code class="docutils literal notranslate"><span class="pre">armServo</span></code> of type <a class="reference internal" href="nou_servo.html#_CPPv49NoU_Servo" title="NoU_Servo"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">NoU_Servo</span></code></a> on servo port 3. The servo pins on the NoU3 are labeled <strong>S1</strong>, <strong>S2</strong>, and so on.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="nou_motor.html#_CPPv49NoU_Motor" title="NoU_Motor"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">NoU_Motor</span></code></a> is a <strong>class</strong> defined in the Alfredo-NoU3 library. A class is like a template that can be used to make an <strong>object</strong>, a specific instance of a class. In this case, the name we give to the specific instance of a <a class="reference internal" href="nou_motor.html#_CPPv49NoU_Motor" title="NoU_Motor"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">NoU_Motor</span></code></a> we’re creating is <code class="docutils literal notranslate"><span class="pre">leftMotor</span></code>, but we’re allowed to call it whatever we want (like <code class="docutils literal notranslate"><span class="pre">rightMotor</span></code>, <code class="docutils literal notranslate"><span class="pre">m</span></code>, or <code class="docutils literal notranslate"><span class="pre">john</span></code>). Lastly, we put a 2 in parentheses at the end to say we want motor port 2.</p>
+</div>
+<p>Your setup is likely not just one motor and one servo, so make sure you have one line for each motor and/or servo. Make sure each one has a different name and the correct motor or servo port number.</p>
+<p>Altogether, our code so far looks something like this (with different motors and servos based on your setup):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Alfredo_NoU3.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;PestoLink-Receive.h&gt;</span>
+
+<span class="n">NoU_Motor</span><span class="w"> </span><span class="nf">leftMotor</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">NoU_Servo</span><span class="w"> </span><span class="nf">armServo</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now, we’re going to start adding code to the <code class="docutils literal notranslate"><span class="pre">setup</span></code> function. This code will run as soon as the program starts. Pretty much any time the ESP32 is on, the last program you uploaded to it will be running. You can restart the program by either cycling power to the ESP32 or by clicking the little <strong>EN</strong> button. We’ll start by enabling PestoLink, and starting up the NoU3 motor ports.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">NoU3</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+<span class="w">    </span><span class="n">PestoLink</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="s">&quot;Name me!&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// Change this name to the name of your robot before uploading! Also, this is a code comment.</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This will cause the ESP32 to start advertising itself as a Bluetooth peripheral when it’s on. Make sure to give it a unique name or it’ll conflict with the Bluetooth name of anyone else who followed this tutorial.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It’s standard to add a level of indentation any time you enter a set of curly braces, like inside of a function. It doesn’t affect the program, but it makes it easier to read.</p>
+</div>
+<p>Next, let’s set up controlling a motor remotely with PestoLink. Add the following code to the <code class="docutils literal notranslate"><span class="pre">loop</span></code> function.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PestoLink</span><span class="p">.</span><span class="n">buttonHeld</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leftMotor</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leftMotor</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This code will make <code class="docutils literal notranslate"><span class="pre">leftMotor</span></code> move while <strong>Button 0</strong> is held on PestoLink and stop when it’s not held. Don’t forget that your motors may be called something different and you may have more than one, so change the name and duplicate as needed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>How did we know to set <code class="docutils literal notranslate"><span class="pre">leftMotor</span></code> to 1 to start it and 0 to turn it off? You can look at the <a class="reference internal" href="api_reference.html#api-reference"><span class="std std-ref">API Reference</span></a> to see specific details about all the functions in Alfredo-NoU3. Specifically, the <a class="reference internal" href="nou_motor.html#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">NoU_Motor::set()</span></code></a> function takes a number between -1 (full reverse) and 1 (full forward), including decimal numbers.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference external" href="https://pestol.ink/">PestoLink</a> gives you many options to control your robot with buttons. For example, if you have a gamepad (like an Xbox controller) plugged into your laptop, you can press the <strong>A Button</strong> to trigger <strong>Button 0</strong>. In fact, every button on a gamepad has a corrisponding number you can use in <a class="reference external" href="https://pestol.ink/">PestoLink</a>. If you disable the Mobile Layout, you can see the number for each button.</p>
+</div>
+<p>Now, let’s do something similar for our servos. Add the following code to the <code class="docutils literal notranslate"><span class="pre">loop</span></code> function for each servo you have.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PestoLink</span><span class="p">.</span><span class="n">buttonHeld</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">armServo</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="mi">180</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">armServo</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This will make <code class="docutils literal notranslate"><span class="pre">armServo</span></code> move to its 180° position while <strong>Button 1</strong> is held and move back to its 0° position while it’s released. Again, change the name and duplicate as needed for the servos in your setup.</p>
+<p>Lastly, add this line to the end of your <code class="docutils literal notranslate"><span class="pre">loop</span></code> function to let PestoLink-Receive process any new input coming in from your computer.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">PestoLink</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>That should complete our test sketch. Here’s what the final code should look like (but with the number of motors and servos adapted for your setup):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Alfredo_NoU3.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;PestoLink-Receive.h&gt;</span>
+
+<span class="n">NoU_Motor</span><span class="w"> </span><span class="nf">leftMotor</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">NoU_Servo</span><span class="w"> </span><span class="nf">armServo</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">NoU3</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+<span class="w">    </span><span class="n">PestoLink</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="s">&quot;Name me!&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// Change this name before uploading!</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PestoLink</span><span class="p">.</span><span class="n">buttonHeld</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leftMotor</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leftMotor</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PestoLink</span><span class="p">.</span><span class="n">buttonHeld</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">armServo</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="mi">180</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">armServo</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">PestoLink</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="uploading">
+<h3>Uploading<a class="headerlink" href="#uploading" title="Link to this heading"></a></h3>
+<p>Now we need to upload our sketch to the robot.</p>
+<ol class="arabic simple">
+<li><p><strong>Connect to the board.</strong> Connect the NoU3 to your computer using a USB-C cable.</p></li>
+<li><p><strong>Select the NoU3.</strong> Click the drop down near the top right and select <strong>Alfredo NoU3</strong>.</p></li>
+<li><p><strong>Upload.</strong> Clicking the <strong>Upload</strong> button (the arrow in the top left pointing right. If you are not sure, hiver over the button, it will say Upload).</p></li>
+</ol>
+</section>
+<section id="bluetooth-pairing">
+<h3>Bluetooth Pairing<a class="headerlink" href="#bluetooth-pairing" title="Link to this heading"></a></h3>
+<p>Now that we’ve uploaded that sketch, the ESP32 will advertise itself as a Bluetooth device as long as it’s on.</p>
+<p><strong>Press/click the CONNECT button in</strong> <a class="reference external" href="https://pestol.ink/">PestoLink</a>. A pairing menu will appear, find and select the robot name you chose.</p>
+<p>You should now be connected to your robot in PestoLink via Bluetooth. Press the buttons you assigned (this tutorial used the 0 and 1 buttons) and the motors and servos you have connected to your robot should move.</p>
+</section>
+</section>
+<section id="robot-programming">
+<h2>Robot Programming<a class="headerlink" href="#robot-programming" title="Link to this heading"></a></h2>
+<p>Now, we’ll adapt the sketch from the previous section to drive a robot. We’ll assume the robot is the one from the <a class="reference external" href="https://youtu.be/rcdbkeYA1rs">Build Tutorial</a>, so it has a servo to raise and lower a basket and a drivetrain with two motors (technically, four motors using only two motor ports).</p>
+<p>First, we’ll change our list of motors and servos to match our robot.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NoU_Motor</span><span class="w"> </span><span class="nf">leftMotor</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">NoU_Motor</span><span class="w"> </span><span class="nf">rightMotor</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">NoU_Servo</span><span class="w"> </span><span class="nf">basketServo</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Now, we’ll create a <code class="docutils literal notranslate"><span class="pre">NoU_Drivetrain</span></code> with our two motors. We’ll use this to move the drivetrain motors as a group instead of individually setting the power that goes to each one.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">NoU_Drivetrain</span><span class="w"> </span><span class="nf">drivetrain</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leftMotor</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rightMotor</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Next, we’ll change the <code class="docutils literal notranslate"><span class="pre">loop</span></code> function to make the robot drive. This will be different depending on whether you want to control your robot with a keyboard or a gamepad.</p>
+<section id="on-screen-joystick">
+<h3>On-Screen Joystick<a class="headerlink" href="#on-screen-joystick" title="Link to this heading"></a></h3>
+<p>We’ll use the On-Screen Joystick to drive the robot in this tutorial, but you can use a gamepad or the WASD Keys alternitively. The vertical axis (axis 0) will control the throttle of the robot and the horizontal axis (axis 1) will control the rotation.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">rotation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">throttle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Set the throttle of the robot based on what key is pressed</span>
+<span class="w">    </span><span class="n">rotation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PestoLink</span><span class="p">.</span><span class="n">getAxis</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="n">throttle</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PestoLink</span><span class="p">.</span><span class="n">getAxis</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Make the robot drive</span>
+<span class="w">    </span><span class="n">drivetrain</span><span class="p">.</span><span class="n">arcadeDrive</span><span class="p">(</span><span class="n">throttle</span><span class="p">,</span><span class="w"> </span><span class="n">rotation</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">PestoLink</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Lastly, we’ll make our servo move when we press <strong>button 0</strong>.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PestoLink</span><span class="p">.</span><span class="n">buttonHeld</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">basketServo</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="mi">180</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">basketServo</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Our completed sketch will now let us drive the robot. Upload it to the NoU3, power on your robot, and connect to it with PestoLink on your computer.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Alfredo_NoU3.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;PestoLink-Receive.h&gt;</span>
+
+<span class="n">NoU_Motor</span><span class="w"> </span><span class="nf">leftMotor</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">NoU_Motor</span><span class="w"> </span><span class="nf">rightMotor</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">NoU_Servo</span><span class="w"> </span><span class="nf">basketServo</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="n">NoU_Drivetrain</span><span class="w"> </span><span class="nf">drivetrain</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leftMotor</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rightMotor</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">NoU3</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+<span class="w">    </span><span class="n">PestoLink</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="s">&quot;Name me!&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// Change this name before uploading!</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">rotation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">throttle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Set the throttle of the robot based on what key is pressed</span>
+<span class="w">    </span><span class="n">rotation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PestoLink</span><span class="p">.</span><span class="n">getAxis</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="n">throttle</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PestoLink</span><span class="p">.</span><span class="n">getAxis</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Make the robot drive</span>
+<span class="w">    </span><span class="n">drivetrain</span><span class="p">.</span><span class="n">arcadeDrive</span><span class="p">(</span><span class="n">throttle</span><span class="p">,</span><span class="w"> </span><span class="n">rotation</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Control the servo</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PestoLink</span><span class="p">.</span><span class="n">buttonHeld</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">basketServo</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="mi">180</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">basketServo</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">PestoLink</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alfredo Systems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NoU_Motor &mdash; Alfredo-NoU3 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d563738"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Alfredo-NoU3
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Alfredo-NoU3</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">NoU_Motor</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/nou_motor.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="nou-motor">
+<h1>NoU_Motor<a class="headerlink" href="#nou-motor" title="Link to this heading"></a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv49NoU_Motor">
+<span id="_CPPv39NoU_Motor"></span><span id="_CPPv29NoU_Motor"></span><span id="NoU_Motor"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NoU_Motor</span></span></span><a class="headerlink" href="#_CPPv49NoU_Motor" title="Link to this definition"></a><br /></dt>
+<dd><p>Controls the output to one of the motor ports on the NoU. The duty cycle of the 39 kHz PWM signal generated has 10 bits of precision (i.e. 0…1023).</p>
+<p><strong>Public Functions</strong></p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Motor9NoU_MotorE7uint8_t">
+<span id="_CPPv3N9NoU_Motor9NoU_MotorE7uint8_t"></span><span id="_CPPv2N9NoU_Motor9NoU_MotorE7uint8_t"></span><span id="NoU_Motor::NoU_Motor__uint8_t"></span><span class="sig-name descname"><span class="n"><span class="pre">NoU_Motor</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">motorPort</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Motor9NoU_MotorE7uint8_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Constructs a new <a class="reference internal" href="#_CPPv49NoU_Motor" title="NoU_Motor"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">NoU_Motor</span></code></a> on the specified port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>uint8_t motorPort</strong> – The port number of the motor, visible in front of each terminal block on the NoU.</p>
+</dd>
+</dl>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">NoU_Motor</span> <span class="n">myMotor</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Constructs a new motor on motor port 1.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Motor3setEf">
+<span id="_CPPv3N9NoU_Motor3setEf"></span><span id="_CPPv2N9NoU_Motor3setEf"></span><span id="NoU_Motor::set__float"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">float</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">output</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Motor3setEf" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the power being applied to the motor and the direction of spin. Affects the state of the motor by changing it to <code class="docutils literal notranslate"><span class="pre">FORWARD</span></code> or <code class="docutils literal notranslate"><span class="pre">BACKWARD</span></code>, but never <code class="docutils literal notranslate"><span class="pre">BRAKE</span></code> or <code class="docutils literal notranslate"><span class="pre">RELEASE</span></code> (see <a class="reference internal" href="#_CPPv4N9NoU_Motor8setStateE7uint8_t" title="NoU_Motor::setState"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">setState()</span></code></a> for more information on these motor states).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>float output</strong> – <cite>-1…1</cite> The percentage of power to apply to the motor. The sign reverses the direction.</p>
+</dd>
+</dl>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">myMotor</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Sets <code class="docutils literal notranslate"><span class="pre">myMotor</span></code> to spin in reverse at half speed.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Motor8setPowerE8uint16_t">
+<span id="_CPPv3N9NoU_Motor8setPowerE8uint16_t"></span><span id="_CPPv2N9NoU_Motor8setPowerE8uint16_t"></span><span id="NoU_Motor::setPower__uint16_t"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setPower</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint16_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">power</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Motor8setPowerE8uint16_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the power being applied to the motor, not affecting the direction the motor spins. To control motor spin direction when using this function, use <a class="reference internal" href="#_CPPv4N9NoU_Motor8setStateE7uint8_t" title="NoU_Motor::setState"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">setState()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>uint16_t power</strong> – <cite>0…1023</cite> The duty cycle to send to the motor drivers, with 1023 being 100%.</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This function is left public mainly to help with debugging issues with motor movement because it’s a bit closer to the hardware than <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a>, allowing users to set the duty cycle with explicit 10-bit precision. It shouldn’t be used on complete projects, but instead when you’re not sure why a motor isn’t behaving correctly and want to bypass any filtering you’ve applied to the <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a> function (i.e using <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">setInputExponent()</span></code>, <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">setMaximumInput()</span></code>, <a class="reference internal" href="#_CPPv4N9NoU_Motor11setInvertedE7boolean" title="NoU_Motor::setInverted"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">setInverted()</span></code></a>, etc.).</p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Motor8setStateE7uint8_t">
+<span id="_CPPv3N9NoU_Motor8setStateE7uint8_t"></span><span id="_CPPv2N9NoU_Motor8setStateE7uint8_t"></span><span id="NoU_Motor::setState__uint8_t"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setState</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Motor8setStateE7uint8_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the state of the motor, changing the behaviour of subsequent calls to <a class="reference internal" href="#_CPPv4N9NoU_Motor8setPowerE8uint16_t" title="NoU_Motor::setPower"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">setPower()</span></code></a>. Typical usage of this function is to set the motor to the brake or release states. Generally, this function shouldn’t be used to set the state to forward or backward, as <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a> accomplishes that behaviour based on the sign of its parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>uint8_t state</strong> – The state to set the motor to. The possible inputs are defined as the following macros:  <code class="docutils literal notranslate"><span class="pre">FORWARD</span></code>, <code class="docutils literal notranslate"><span class="pre">BACKWARD</span></code>, <code class="docutils literal notranslate"><span class="pre">BRAKE</span></code>, and <code class="docutils literal notranslate"><span class="pre">RELEASE</span></code>.</p>
+</dd>
+</dl>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">myMotor</span><span class="o">.</span><span class="n">setState</span><span class="p">(</span><span class="n">BRAKE</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Sets <code class="docutils literal notranslate"><span class="pre">myMotor</span></code> to brake mode. This state would be cleared the next time <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a> is called.</p>
+<blockquote>
+<div><div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://www.allaboutcircuits.com/technical-articles/difference-slow-decay-mode-fast-decay-mode-h-bridge-dc-motor-applications/">This more technical explanation</a> of how the brake (slow decay) and release (fast decay) states work.</p>
+</div>
+</div></blockquote>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Motor11setInvertedE7boolean">
+<span id="_CPPv3N9NoU_Motor11setInvertedE7boolean"></span><span id="_CPPv2N9NoU_Motor11setInvertedE7boolean"></span><span id="NoU_Motor::setInverted__boolean"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setInverted</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">boolean</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">isInverted</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Motor11setInvertedE7boolean" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets whether the motor should always spin in the direction opposite of standard. This function is usually meant to be used called just once during setup, not repeatedly during operation. To switch the direction of a motor dynamically, use the <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a> function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>boolean isInverted</strong> – If <code class="docutils literal notranslate"><span class="pre">true</span></code>, sets the motor to spin in the opposite direction of standard. If <code class="docutils literal notranslate"><span class="pre">false</span></code>, sets the motor to spin normally.</p>
+</dd>
+</dl>
+<p><strong>Example usage:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">myMotor</span><span class="o">.</span><span class="n">setInverted</span><span class="p">(</span><span class="n">true</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Sets <code class="docutils literal notranslate"><span class="pre">myMotor</span></code> to be inverted.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Motor10isInvertedEv">
+<span id="_CPPv3N9NoU_Motor10isInvertedEv"></span><span id="_CPPv2N9NoU_Motor10isInvertedEv"></span><span id="NoU_Motor::isInverted"></span><span class="n"><span class="pre">boolean</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isInverted</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Motor10isInvertedEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets whether the motor has been set as inverted using the <a class="reference internal" href="#_CPPv4N9NoU_Motor11setInvertedE7boolean" title="NoU_Motor::setInverted"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">setInverted()</span></code></a> function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns <code class="docutils literal notranslate"><span class="pre">true</span></code> if the motor has be set as inverted; <code class="docutils literal notranslate"><span class="pre">false</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Motor16setMinimumOutputEf">
+<span id="_CPPv3N9NoU_Motor16setMinimumOutputEf"></span><span id="_CPPv2N9NoU_Motor16setMinimumOutputEf"></span><span id="NoU_Motor::setMinimumOutput__float"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setMinimumOutput</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">float</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">minimumOutput</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Motor16setMinimumOutputEf" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the minimum power that should be sent to the motor when using the <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a> function. Together with <a class="reference internal" href="#_CPPv4N9NoU_Motor16setMaximumOutputEf" title="NoU_Motor::setMaximumOutput"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">setMaximumOutput()</span></code></a>, this function allows users to map inputs on the interval (0, 1] to (<code class="docutils literal notranslate"><span class="pre">minimumOutput</span></code>, <code class="docutils literal notranslate"><span class="pre">maximumOutput</span></code>]. That is, if <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a> was passed an input just above zero, it would be mapped to an output just above <code class="docutils literal notranslate"><span class="pre">minimumOutput</span></code>, which would be sent to the motor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>float minimumOutput</strong> – <cite>0…1</cite> The minimum power that should be sent to the motor when using <code class="docutils literal notranslate"><span class="pre">set</span></code>.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For motors in a <code class="docutils literal notranslate"><span class="pre">NoU_Drivetrain</span></code>, the <code class="docutils literal notranslate"><span class="pre">setMinimumOutput</span></code> method of the <code class="docutils literal notranslate"><span class="pre">NoU_Drivetrain</span></code> class should be used, not this one.</p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Motor16setMaximumOutputEf">
+<span id="_CPPv3N9NoU_Motor16setMaximumOutputEf"></span><span id="_CPPv2N9NoU_Motor16setMaximumOutputEf"></span><span id="NoU_Motor::setMaximumOutput__float"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setMaximumOutput</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">float</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">maximumOutput</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Motor16setMaximumOutputEf" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the maximum power that should be sent to the motor when using the <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a> function. Together with <a class="reference internal" href="#_CPPv4N9NoU_Motor16setMinimumOutputEf" title="NoU_Motor::setMinimumOutput"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">setMinimumOutput()</span></code></a>, this function allows users to map inputs on the interval (0, 1] to (<code class="docutils literal notranslate"><span class="pre">minimumOutput</span></code>, <code class="docutils literal notranslate"><span class="pre">maximumOutput</span></code>]. That is, if <code class="docutils literal notranslate"><span class="pre">set</span></code> was passed 1 as an input (i.e. full power), it would be mapped to <code class="docutils literal notranslate"><span class="pre">maximumOutput</span></code>, which would be sent to the motor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>float maximumOutput</strong> – <cite>0…1</cite> The maximum power that should be sent to the motor when using <code class="docutils literal notranslate"><span class="pre">set</span></code>.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For motors in a <code class="docutils literal notranslate"><span class="pre">NoU_Drivetrain</span></code>, the <code class="docutils literal notranslate"><span class="pre">setMaximumOutput</span></code> method of the <code class="docutils literal notranslate"><span class="pre">NoU_Drivetrain</span></code> class should be used, not this one.</p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Motor11setExponentEf">
+<span id="_CPPv3N9NoU_Motor11setExponentEf"></span><span id="_CPPv2N9NoU_Motor11setExponentEf"></span><span id="NoU_Motor::setExponent__float"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setExponent</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">float</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">exponent</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Motor11setExponentEf" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the exponent to apply to inputs to the <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a> function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>float exponent</strong> – The positive exponent to apply to inputs to <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a>.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For motors in a <code class="docutils literal notranslate"><span class="pre">NoU_Drivetrain</span></code>, the <code class="docutils literal notranslate"><span class="pre">setExponent</span></code> method of the <code class="docutils literal notranslate"><span class="pre">NoU_Drivetrain</span></code> class should be used, not this one.</p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Motor11setDeadbandEf">
+<span id="_CPPv3N9NoU_Motor11setDeadbandEf"></span><span id="_CPPv2N9NoU_Motor11setDeadbandEf"></span><span id="NoU_Motor::setDeadband__float"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setDeadband</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">float</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">deadband</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Motor11setDeadbandEf" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the range of inputs to <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a> that should be mapped to zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>float deadband</strong> – <cite>0…1</cite> All inputs to <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a> with a smaller magnitude than this parameter will be mapped to zero.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For motors in a <code class="docutils literal notranslate"><span class="pre">NoU_Drivetrain</span></code>, the <code class="docutils literal notranslate"><span class="pre">setDeadband</span></code> method of the <code class="docutils literal notranslate"><span class="pre">NoU_Drivetrain</span></code> class should be used, not this one.</p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Motor9getOutputEv">
+<span id="_CPPv3N9NoU_Motor9getOutputEv"></span><span id="_CPPv2N9NoU_Motor9getOutputEv"></span><span id="NoU_Motor::getOutput"></span><span class="kt"><span class="pre">float</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getOutput</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Motor9getOutputEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the current percentage of power being delivered to the motor. Updates when <a class="reference internal" href="#_CPPv4N9NoU_Motor3setEf" title="NoU_Motor::set"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">set()</span></code></a> and <a class="reference internal" href="#_CPPv4N9NoU_Motor8setPowerE8uint16_t" title="NoU_Motor::setPower"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">setPower()</span></code></a> are called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>-1…1</cite> The percentage of power being delivered to the motor, with negative values representing the reverse direction</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alfredo Systems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

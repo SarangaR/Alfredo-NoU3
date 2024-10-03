@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NoU_Servo &mdash; Alfredo-NoU3 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d563738"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Alfredo-NoU3
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Alfredo-NoU3</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">NoU_Servo</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/nou_servo.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="nou-servo">
+<h1>NoU_Servo<a class="headerlink" href="#nou-servo" title="Link to this heading"></a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv49NoU_Servo">
+<span id="_CPPv39NoU_Servo"></span><span id="_CPPv29NoU_Servo"></span><span id="NoU_Servo"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NoU_Servo</span></span></span><a class="headerlink" href="#_CPPv49NoU_Servo" title="Link to this definition"></a><br /></dt>
+<dd><p>Controls the output to one of the servo ports on the NoU. The duty cycle of the 50 Hz PWM signal generated has 16 bits of precision (i.e. 0…65535).</p>
+<p><strong>Public Functions</strong></p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Servo9NoU_ServoE7uint8_t8uint16_t8uint16_t">
+<span id="_CPPv3N9NoU_Servo9NoU_ServoE7uint8_t8uint16_t8uint16_t"></span><span id="_CPPv2N9NoU_Servo9NoU_ServoE7uint8_t8uint16_t8uint16_t"></span><span id="NoU_Servo::NoU_Servo__uint8_t.uint16_t.uint16_t"></span><span class="sig-name descname"><span class="n"><span class="pre">NoU_Servo</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">servoPort</span></span>, <span class="n"><span class="pre">uint16_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">minPulse</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">540</span></span>, <span class="n"><span class="pre">uint16_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">maxPulse</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">2300</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Servo9NoU_ServoE7uint8_t8uint16_t8uint16_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Constructs a new <a class="reference internal" href="#_CPPv49NoU_Servo" title="NoU_Servo"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">NoU_Servo</span></code></a> on the specified port. The default values for <code class="docutils literal notranslate"><span class="pre">minPulse</span></code> and <code class="docutils literal notranslate"><span class="pre">maxPulse</span></code> have been configured experimentally for the range accepted by most common <a class="reference external" href="https://www.amazon.com/Micro-Helicopter-Airplane-Remote-Control/dp/B072V529YD">9g servos</a>, although each servo is a little different and often has slightly variant minimum and maximum pulse-widths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uint8_t servoPort</strong> – The port number of the servo, visible in front of each set of servo pins on the NoU.</p></li>
+<li><p><strong>uint16_t minPulse</strong> – The optional minimum pulse-width to send to the servo in microseconds, corresponding to 0°. See <a class="reference internal" href="#_CPPv4N9NoU_Servo15setMinimumPulseE8uint16_t" title="NoU_Servo::setMinimumPulse"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">setMinimumPulse()</span></code></a>.</p></li>
+<li><p><strong>uint16_t minPulse</strong> – The optional maximum pulse-width to send to the servo in microseconds, corresponding to 180°. See <a class="reference internal" href="#_CPPv4N9NoU_Servo15setMaximumPulseE8uint16_t" title="NoU_Servo::setMaximumPulse"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">setMaximumPulse()</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Servo5writeEf">
+<span id="_CPPv3N9NoU_Servo5writeEf"></span><span id="_CPPv2N9NoU_Servo5writeEf"></span><span id="NoU_Servo::write__float"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">write</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">float</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">degrees</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Servo5writeEf" title="Link to this definition"></a><br /></dt>
+<dd><p>Commands the servo to move to the specified degree heading, based on the configured minimum and maximum pulse-widths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>float degrees</strong> – The degree heading to command the servo to move to. Maps 0° to the minimum pulse-width and 180° to the maximum pulse-width. Other values are interpolated linearly, including those outside the range of 0…180, although they will produce a pulse-width outside of the minimum and maxmimum.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Servo17writeMicrosecondsE8uint16_t">
+<span id="_CPPv3N9NoU_Servo17writeMicrosecondsE8uint16_t"></span><span id="_CPPv2N9NoU_Servo17writeMicrosecondsE8uint16_t"></span><span id="NoU_Servo::writeMicroseconds__uint16_t"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">writeMicroseconds</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint16_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pulseLength</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Servo17writeMicrosecondsE8uint16_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Sends a PWM signal with the specified pulse-width to the servo. Ignores the configured minimum and maximum pulse-widths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>uint16_t pulseLength</strong> – The pulse-width in microseconds of the PWM signal to begin sending.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Servo15setMinimumPulseE8uint16_t">
+<span id="_CPPv3N9NoU_Servo15setMinimumPulseE8uint16_t"></span><span id="_CPPv2N9NoU_Servo15setMinimumPulseE8uint16_t"></span><span id="NoU_Servo::setMinimumPulse__uint16_t"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setMinimumPulse</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint16_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">minPulse</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Servo15setMinimumPulseE8uint16_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the pulse-width corresponding to 0° with regard to the <a class="reference internal" href="#_CPPv4N9NoU_Servo5writeEf" title="NoU_Servo::write"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">write()</span></code></a> function. This value can usually be found in the datasheet for a servo, although it should be noted that the actual minimum pulse-width for some servos can vary slightly from the reported values. To get the greatest range possible out of a servo, it can be necessary to experimentally tweak the minimum pulse-width until the servo is clearly at the edge of its range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>uint16_t minPulse</strong> – The pulse-width in microseconds corresponding to 0°.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Servo15setMaximumPulseE8uint16_t">
+<span id="_CPPv3N9NoU_Servo15setMaximumPulseE8uint16_t"></span><span id="_CPPv2N9NoU_Servo15setMaximumPulseE8uint16_t"></span><span id="NoU_Servo::setMaximumPulse__uint16_t"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setMaximumPulse</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint16_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">maxPulse</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Servo15setMaximumPulseE8uint16_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Sets the pulse-width corresponding to 180° with regard to the <a class="reference internal" href="#_CPPv4N9NoU_Servo5writeEf" title="NoU_Servo::write"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">write()</span></code></a> function. This value can usually be found in the datasheet for a servo, although it should be noted that the actual maximum pulse-width for some servos can vary slightly from the reported values. To get the greatest range possible out of a servo, it can be necessary to experimentally tweak the maximum pulse-width until the servo is clearly at the edge of its range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>uint16_t maxPulse</strong> – The pulse-width in microseconds corresponding to 180°.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Servo15getMicrosecondsEv">
+<span id="_CPPv3N9NoU_Servo15getMicrosecondsEv"></span><span id="_CPPv2N9NoU_Servo15getMicrosecondsEv"></span><span id="NoU_Servo::getMicroseconds"></span><span class="n"><span class="pre">uint16_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getMicroseconds</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Servo15getMicrosecondsEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the pulse-width in microseconds of the PWM signal currently being generated for this servo. Updates when <a class="reference internal" href="#_CPPv4N9NoU_Servo5writeEf" title="NoU_Servo::write"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">write()</span></code></a> and <a class="reference internal" href="#_CPPv4N9NoU_Servo17writeMicrosecondsE8uint16_t" title="NoU_Servo::writeMicroseconds"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">writeMicroseconds()</span></code></a> are called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The pulse-width of the current output in microseconds.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9NoU_Servo10getDegreesEv">
+<span id="_CPPv3N9NoU_Servo10getDegreesEv"></span><span id="_CPPv2N9NoU_Servo10getDegreesEv"></span><span id="NoU_Servo::getDegrees"></span><span class="kt"><span class="pre">float</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getDegrees</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9NoU_Servo10getDegreesEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Gets the pulse-width in degrees of the PWM signal currently being generated for this servo, based on the configured minimum and maximum pulse-widths. Updates when <a class="reference internal" href="#_CPPv4N9NoU_Servo5writeEf" title="NoU_Servo::write"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">write()</span></code></a> and <a class="reference internal" href="#_CPPv4N9NoU_Servo17writeMicrosecondsE8uint16_t" title="NoU_Servo::writeMicroseconds"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">writeMicroseconds()</span></code></a> are called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The pulse-width of the current output in degees, with the configured minimum pulse-width being 0°, and the maximum being 180°.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alfredo Systems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

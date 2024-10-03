@@ -1,6 +1,7 @@
 #include "esp32-hal-ledc.h"
 #include "Arduino.h"
 #include "Alfredo_NoU3.h"
+#include "Alfredo_NoU3_PCA9.h"
 
 #if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_NOU3)
 NoU_Agent NoU3;
@@ -19,8 +20,8 @@ NoU_Motor::NoU_Motor(uint8_t motorPort)
 }
 
 void NoU_Motor::set(float output) {
-	if(!inverted) NoU3.setMotor(this->motorPort, applyCurve(output));
-	else NoU3.setMotor(this->motorPort, -1 * applyCurve(output));
+	if(!inverted) NoU3_PCA9_SetMotor(this->motorPort, applyCurve(output));
+	else NoU3_PCA9_SetMotor(this->motorPort, -1 * applyCurve(output));
 }
 
 float NoU_Motor::applyCurve(float input) {
@@ -59,25 +60,20 @@ NoU_Servo::NoU_Servo(uint8_t servoPort, uint16_t minPulse, uint16_t maxPulse) {
     switch (servoPort) {
         case 1:
             pin = PIN_SERVO_1;
-            channel = CHANNEL_SERVO_1;
             break;
         case 2:
             pin = PIN_SERVO_2;
-            channel = CHANNEL_SERVO_2;
             break;
         case 3:
             pin = PIN_SERVO_3;
-            channel = CHANNEL_SERVO_3;
             break;
         case 4:
             pin = PIN_SERVO_4;
-            channel = CHANNEL_SERVO_4;
             break;
     }
     this->minPulse = minPulse;
     this->maxPulse = maxPulse;
-    ledcSetup(channel, SERVO_PWM_FREQ, SERVO_PWM_RES);
-    ledcAttachPin(pin, channel);
+    ledcAttach( pin, SERVO_PWM_FREQ, SERVO_PWM_RES);
 }
 
 void NoU_Servo::write(float degrees) {
@@ -271,8 +267,7 @@ void NoU_Drivetrain::setInputDeadband(float inputDeadband) {
 }
 
 void RSL::initialize() {
-    ledcSetup(RSL_CHANNEL, RSL_PWM_FREQ, RSL_PWM_RES);
-    ledcAttachPin(RSL_PIN, RSL_CHANNEL);
+	    ledcAttach(RSL_PIN, RSL_PWM_FREQ, RSL_PWM_RES);
 }
 
 void RSL::setState(uint8_t state) {

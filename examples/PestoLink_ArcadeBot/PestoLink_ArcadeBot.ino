@@ -20,33 +20,30 @@ NoU_Servo servo(1);
 NoU_Drivetrain drivetrain(&frontLeftMotor, &frontRightMotor, &rearLeftMotor, &rearRightMotor);
 
 void setup() {
-//EVERYONE SHOULD CHANGE "ESP32 Bluetooth" TO THE NAME OF THEIR ROBOT HERE BEFORE PAIRING THEIR ROBOT TO ANY LAPTOP
+    //EVERYONE SHOULD CHANGE "ESP32 Bluetooth" TO THE NAME OF THEIR ROBOT HERE BEFORE PAIRING THEIR ROBOT TO ANY LAPTOP
     NoU3.begin();
     PestoLink.begin("ESP32_Bluetooth");
     Serial.begin(115200);
 
-// If a motor in your drivetrain is spinning the wrong way, change the value for it here from 'false' to 'true'
+    // If a motor in your drivetrain is spinning the wrong way, change the value for it here from 'false' to 'true'
     frontLeftMotor.setInverted(false);
     frontRightMotor.setInverted(true);
     rearLeftMotor.setInverted(false);
     rearRightMotor.setInverted(true);
 
-// No need to mess with this code
+    // Important for your Robot Service Light, no need to mess with this code
     RSL::initialize();
     RSL::setState(RSL_ENABLED);
 }
 
 void loop() {
 
-    uint8_t batteryByte = 255.0 * NoU3.getBatteryVoltage() / 12.0;
-    PestoLink.setBatteryVal(batteryByte);
+    // This measures your batteries voltage and sends it to PestoLink
+    // You could use this value for a lot of cool things, for example make LEDs flash when your batteries are low?
+    float batteryVal = NoU3.getBatteryVoltage();
+    PestoLink.setBatteryVal(batteryVal);
 
-// Here we define the variables we use in the loop
-    int throttle = 0;
-    int rotation = 0;
-    int servoAngle = 0;
-
-// Here we decide what the throttle and rotation direction will be based on gamepad inputs   
+    // Here we decide what the throttle and rotation direction will be based on gamepad inputs   
     if (PestoLink.update()) {
         float throttle = -PestoLink.getAxis(1);
         float rotation = PestoLink.getAxis(0);
@@ -58,7 +55,9 @@ void loop() {
         RSL::setState(RSL_DISABLED);
     }
 
-// Here we decide what the servo angle will be based on if the Q key is pressed ()
+    // Here we decide what the servo angle will be based on if the Q key is pressed ()
+    int servoAngle = 0;
+
     if (PestoLink.buttonHeld(0)) {
         servoAngle = 70;
     }
@@ -66,10 +65,10 @@ void loop() {
         servoAngle = 110;
     }
 
-// Here we set the drivetrain motor speeds and servo angle based on what we found in the above code
+    // Here we set the drivetrain motor speeds and servo angle based on what we found in the above code
     servo.write(servoAngle);
 
-// No need to mess with this code
+    // No need to mess with this code
     PestoLink.update();
     RSL::update();
 }
