@@ -1,9 +1,8 @@
-Alfredo-NoU2 Documentation
+Alfredo-NoU3 Documentation
 ==========================
 
 .. toctree::
    :maxdepth: 2
 
-   installation
    api_reference
-   tutorial
+   tutorials
