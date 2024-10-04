@@ -1,8 +1,6 @@
 /**
- * Example code for a robot using an ESP32 and NoU2 controlled with a gamepad from AlfredoConnect.
- * The NoU2 library can be found at https://github.com/AlfredoElectronics/Alfredo-NoU2.
- *
- * Detailed instructions can be found at https://github.com/AlfredoElectronics/AlfredoConnect-Receive/.
+ * Example code for a robot using a NoU3 controlled with PestoLink: https://pestol.ink
+ * The NoU3 documentation and tutorials can be found at https://alfredo-nou3.readthedocs.io/
  */
 
 #include <PestoLink-Receive.h>
@@ -55,7 +53,7 @@ void loop() {
         RSL::setState(RSL_DISABLED);
     }
 
-    // Here we decide what the servo angle will be based on if the Q key is pressed ()
+    // Here we decide what the servo angle will be based on if button 0 is pressed
     int servoAngle = 0;
 
     if (PestoLink.buttonHeld(0)) {

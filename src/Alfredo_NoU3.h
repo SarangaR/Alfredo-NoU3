@@ -20,10 +20,18 @@
 #define RSL_PIN 45
 
 // PWM Configuration
-const int SERVO_PWM_RES = 13; // bits
+const int SERVO_PWM_RES = 12; // bits
 const int SERVO_PWM_FREQ = 50; // Hz
 const int RSL_PWM_RES = 10; // bits
 const int RSL_PWM_FREQ = 1000; // Hz
+#define RSL_CHANNEL 1
+#define SERVO_1_CHANNEL 2
+#define SERVO_2_CHANNEL 3
+#define SERVO_3_CHANNEL 4
+#define SERVO_4_CHANNEL 5
+#define SERVO_5_CHANNEL 6
+#define SERVO_6_CHANNEL 7
+
 
 // RSL states (TODO: This should be an enum?)
 #define RSL_OFF 0

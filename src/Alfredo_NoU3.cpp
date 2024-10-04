@@ -60,26 +60,32 @@ NoU_Servo::NoU_Servo(uint8_t servoPort, uint16_t minPulse, uint16_t maxPulse) {
     switch (servoPort) {
         case 1:
             pin = PIN_SERVO_1;
+            channel = SERVO_1_CHANNEL;
             break;
         case 2:
             pin = PIN_SERVO_2;
+            channel = SERVO_2_CHANNEL;
             break;
         case 3:
             pin = PIN_SERVO_3;
+            channel = SERVO_3_CHANNEL;
             break;
         case 4:
             pin = PIN_SERVO_4;
+            channel = SERVO_4_CHANNEL;
             break;
         case 5:
             pin = PIN_SERVO_5;
+            channel = SERVO_5_CHANNEL;
             break;
         case 6:
             pin = PIN_SERVO_6;
+            channel = SERVO_6_CHANNEL;
             break;
     }
     this->minPulse = minPulse;
     this->maxPulse = maxPulse;
-    ledcAttach( pin, SERVO_PWM_FREQ, SERVO_PWM_RES);
+    ledcAttachChannel( pin, SERVO_PWM_FREQ, SERVO_PWM_RES, channel);
 }
 
 void NoU_Servo::write(float degrees) {
@@ -88,7 +94,7 @@ void NoU_Servo::write(float degrees) {
 
 void NoU_Servo::writeMicroseconds(uint16_t pulseLength) {
     this->pulse = pulseLength;
-    ledcWrite(channel, fmap(pulseLength, 0, 20000, 0, (1 << SERVO_PWM_RES) - 1));
+    ledcWrite(pin, fmap(pulseLength, 0, 20000, 0, (1 << SERVO_PWM_RES) - 1));
 }
 
 void NoU_Servo::setMinimumPulse(uint16_t minPulse) {
@@ -273,7 +279,7 @@ void NoU_Drivetrain::setInputDeadband(float inputDeadband) {
 }
 
 void RSL::initialize() {
-	    ledcAttach(RSL_PIN, RSL_PWM_FREQ, RSL_PWM_RES);
+	    ledcAttachChannel(RSL_PIN, RSL_PWM_FREQ, RSL_PWM_RES, RSL_CHANNEL);
 }
 
 void RSL::setState(uint8_t state) {

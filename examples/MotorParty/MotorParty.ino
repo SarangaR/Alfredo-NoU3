@@ -1,3 +1,8 @@
+/**
+ * Example code for a robot using a NoU3, meant to test every motor and servo.
+ * The NoU3 documentation and tutorials can be found at https://alfredo-nou3.readthedocs.io/
+ */
+
 #include <Alfredo_NoU3.h>
 
 NoU_Motor motor1(1);
@@ -22,7 +27,7 @@ void setup() {
 }
 
 void loop() {
-    for (float i = -1; i < 1; i += 0.01) {
+    for (float i = -1; i < 1; i += 0.05) {
         motor1.set(i);
         motor2.set(i);
         motor3.set(i);
@@ -32,16 +37,16 @@ void loop() {
 		    motor7.set(i);
         motor8.set(i);
 		
-        servo1.write(map(i*100, -100, 100, 0, 180));
-        servo2.write(map(i*100, -100, 100, 0, 180));
-        servo3.write(map(i*100, -100, 100, 0, 180));
-        servo4.write(map(i*100, -100, 100, 0, 180));
+        servo1.write(map(i*100.0, -100, 100, 0, 180));
+        servo2.write(map(i*100.0, -100, 100, 0, 180));
+        servo3.write(map(i*100.0, -100, 100, 0, 180));
+        servo4.write(map(i*100.0, -100, 100, 0, 180));
 		
         RSL::update();
-        delay(1);
+        delay(5);
         Serial.println(i);
     }
-    for (float i = 1; i > -1; i -= 0.01) {
+    for (float i = 1; i > -1; i -= 0.05) {
         motor1.set(i);
         motor2.set(i);
         motor3.set(i);
@@ -51,13 +56,13 @@ void loop() {
 		    motor7.set(i);
         motor8.set(i);
 		
-        servo1.write(map(i*100, -100, 100, 0, 180));
-        servo2.write(map(i*100, -100, 100, 0, 180));
-        servo3.write(map(i*100, -100, 100, 0, 180));
-        servo4.write(map(i*100, -100, 100, 0, 180));
+        servo1.write(map(i*100.0, -100, 100, 0, 180));
+        servo2.write(map(i*100.0, -100, 100, 0, 180));
+        servo3.write(map(i*100.0, -100, 100, 0, 180));
+        servo4.write(map(i*100.0, -100, 100, 0, 180));
 		
         RSL::update();
-        delay(1);
+        delay(5);
         Serial.println(i);
     }
 }
