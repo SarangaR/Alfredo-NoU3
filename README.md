@@ -1,5 +1,4 @@
 # Alfredo_NoU3
-_Library version 1.0.0
 
 <img src="https://github.com/AlfredoSystems/alfredosystems.github.io/blob/master/images/nou3-1.png" width="400px">
 
