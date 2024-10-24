@@ -282,5 +282,12 @@ Our completed sketch will now let us drive the robot. Upload it to the NoU3, pow
         PestoLink.update();
     }
 
+Troubleshooting
+-----------------
+
+If you ever fail to upload code, and the IDE says "fatal error occured: No serial data recieved." then you may need to put your NoU3 into Boot Mode.
+
+To put your NoU3 into Boot Mode, start by powering off the NoU3. Then press and hold the boot button. While holding the button, power on the NoU3. Once it has power you can let go. Now that it is in boot mode you should be able to upload code like normal. Once code is uploaded, when you reset/power cycle the NoU3, it will be fixed.
+
 .. _Alfredo-NoU3: https://github.com/AlfredoSystems/Alfredo-NoU3/
 .. _PestoLink-Receive: https://github.com/AlfredoSystems/PestoLink-Receive/
