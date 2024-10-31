@@ -1,40 +1,28 @@
-
 #include <Alfredo_NoU3.h>
 
-SFE_MMC5983MA myMag;
+int interruptPinMMC5 = 47;
 
-int interruptPin = 47;
+float magnetometer_X = 0, magnetometer_Y = 0, magnetometer_Z = 0;
 
 volatile bool newDataAvailable = true;
-uint32_t rawValueX = 0;
-uint32_t rawValueY = 0;
-uint32_t rawValueZ = 0;
-double scaledX = 0;
-double scaledY = 0;
-double scaledZ = 0;
-double heading = 0;
 
 void setup()
 {
+  NoU3.begin();
   Serial.begin(115200);
-  Serial.println("MMC5983MA Example");
-  
-  Wire1.begin(35, 36);
 
-  pinMode(interruptPin, INPUT);
-  attachInterrupt(digitalPinToInterrupt(interruptPin), interruptRoutine, RISING);
-
-  if (myMag.begin(Wire1) == false){
+  if (MMC5.begin(Wire1) == false){
     Serial.println("MMC5983MA did not respond - check your wiring. Freezing.");
-    while (true);
+    while (true){};
   }
-
-  myMag.softReset();
-  myMag.setFilterBandwidth(800);
-  myMag.setContinuousModeFrequency(100);
-  myMag.enableAutomaticSetReset();
-  myMag.enableContinuousMode();
-  myMag.enableInterrupt();
+  MMC5.softReset();
+  MMC5.setFilterBandwidth(800);
+  MMC5.setContinuousModeFrequency(100);
+  MMC5.enableAutomaticSetReset();
+  MMC5.enableContinuousMode();
+  pinMode(interruptPinMMC5, INPUT);
+  attachInterrupt(digitalPinToInterrupt(interruptPinMMC5), interruptRoutine, RISING);
+  MMC5.enableInterrupt();
 
   newDataAvailable = true;
 }
@@ -43,30 +31,23 @@ void loop()
 {
   if (newDataAvailable == true){
     newDataAvailable = false;
-    myMag.clearMeasDoneInterrupt();
+    MMC5.clearMeasDoneInterrupt();
 
-    myMag.readFieldsXYZ(&rawValueX, &rawValueY, &rawValueZ);
-
-    scaledX = (double)rawValueX - 131072.0;
-    scaledX /= 131072.0;
-
-    scaledY = (double)rawValueY - 131072.0;
-    scaledY /= 131072.0;
-
-    scaledZ = (double)rawValueZ - 131072.0;
-    scaledZ /= 131072.0;
+    MMC5.readAccelerometer(&magnetometer_X, &magnetometer_Y, &magnetometer_Z); // Results are in uT (microteslas).
 
     Serial.print("X: ");
-    Serial.print(scaledX * 800.0, 3);
+    Serial.print(magnetometer_X, 3);
 
     Serial.print("   Y: ");
-    Serial.print(scaledY * 800.0, 3);
+    Serial.print(magnetometer_Y, 3);
     
     Serial.print("   Z: ");
-    Serial.println(scaledZ * 800.0, 3);
+    Serial.println(magnetometer_Z, 3);
   }
 }
 
 void interruptRoutine() {
     newDataAvailable = true;
 }
+
+

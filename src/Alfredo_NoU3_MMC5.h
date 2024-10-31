@@ -117,12 +117,6 @@ public:
   // Configures and starts the I2C I/O layer.
   bool begin(TwoWire &wirePort);
 
-  // Configures and starts the SPI I/O layer.
-  bool begin(const uint8_t csPin, SPIClass &spiPort = SPI);
-
-  // Configures the SPI I/O layer with the given chip select and SPI settings provided by the user.
-  bool begin(const uint8_t csPin, SPISettings userSettings, SPIClass &spiPort = SPI);
-
   // Returns true if we get the correct product ID from the device.
   bool isConnected();
 
@@ -196,10 +190,6 @@ public:
   
   // Initializes MMC5983MA using I2C
   bool begin(TwoWire &wirePort = Wire);
-
-  // Initializes MMC5983MA using SPI
-  bool begin(uint8_t csPin, SPIClass& spiPort = SPI);
-  bool begin(uint8_t csPin, SPISettings userSettings, SPIClass& spiPort = SPI);
 
   // Polls if MMC5983MA is connected and if chip ID matches MMC5983MA chip id.
   bool isConnected();
@@ -335,9 +325,16 @@ public:
   // Read and return the X, Y and Z field strengths
   bool readFieldsXYZ(uint32_t *x, uint32_t *y, uint32_t *z);
 
+  // Get field strengths in MicroTesla
+  bool readAccelerometer(float *x, float *y, float *z);
+  
   // Clear the Meas_T_Done and/or Meas_M_Done interrupts
   // By default, clear both
   bool clearMeasDoneInterrupt(uint8_t measMask = MEAS_T_DONE | MEAS_M_DONE);
 };
+
+#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_MMC5)
+extern SFE_MMC5983MA MMC5;
+#endif
 
 #endif

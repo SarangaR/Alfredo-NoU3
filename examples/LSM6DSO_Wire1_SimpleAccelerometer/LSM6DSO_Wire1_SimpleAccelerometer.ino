@@ -1,51 +1,63 @@
-/*
-  Arduino LSM6DSOX - Simple Accelerometer
-
-  This example reads the acceleration values from the LSM6DSOX
-  sensor and continuously prints them to the Serial Monitor
-  or Serial Plotter.
-
-  The circuit:
-  - Arduino Nano RP2040 Connect
-
-  created 10 May 2021
-  by Arturo Guadalupi
-
-  This example code is in the public domain.
-*/
-
 #include <Alfredo_NoU3.h>
 
+int interruptPinLSM6 = 48;
+
+float acceleration_x, acceleration_y, acceleration_z;
+float gyroscope_x, gyroscope_y, gyroscope_z;
+
+volatile bool newDataAvailable = true;
+
 void setup() {
-  Wire1.setPins(35, 36);
 
-  Serial.begin(9600);
-  while (!Serial);
+  NoU3.begin();
+  Serial.begin(115200);
 
-  if (!IMU.begin()) {
-    Serial.println("Failed to initialize IMU!");
-
-    while (1);
+  if (LSM6.begin(Wire1) == false) {
+    Serial.println("LSM6 did not respond - check your wiring. Freezing.");
+    while (true) {};
   }
+  pinMode(interruptPinLSM6, INPUT);
+  attachInterrupt(digitalPinToInterrupt(interruptPinLSM6), interruptRoutine, RISING);
+  LSM6.enableInterrupt();
 
   Serial.print("Accelerometer sample rate = ");
-  Serial.print(IMU.accelerationSampleRate());
+  Serial.print(LSM6.accelerationSampleRate());
   Serial.println(" Hz");
   Serial.println();
-  Serial.println("Acceleration in g's");
-  Serial.println("X\tY\tZ");
+  Serial.println("X\tY\tZ\tX\tY\tZ");
+
+  newDataAvailable = true;
 }
 
 void loop() {
-  float x, y, z;
+  if (newDataAvailable == true) {
+    newDataAvailable = false;
+    if (LSM6.accelerationAvailable()) {
+      LSM6.readAcceleration(&acceleration_x, &acceleration_y, &acceleration_z);  // Results are in g (earth gravity).
+    }
 
-  if (IMU.accelerationAvailable()) {
-    IMU.readAcceleration(x, y, z);
+    if (LSM6.gyroscopeAvailable()) {
+      LSM6.readGyroscope(&gyroscope_x, &gyroscope_y, &gyroscope_z);  // Results are in degrees/second.
+    }
 
-    Serial.print(x);
-    Serial.print('\t');
-    Serial.print(y);
-    Serial.print('\t');
-    Serial.println(z);
+    printState();
   }
+}
+
+void interruptRoutine() {
+  newDataAvailable = true;
+}
+
+void printState() {
+  Serial.print(acceleration_x);
+  Serial.print('\t');
+  Serial.print(acceleration_y);
+  Serial.print('\t');
+  Serial.print(acceleration_z);
+  Serial.print('\t');
+  Serial.print(gyroscope_x);
+  Serial.print('\t');
+  Serial.print(gyroscope_y);
+  Serial.print('\t');
+  Serial.println(gyroscope_z);
 }

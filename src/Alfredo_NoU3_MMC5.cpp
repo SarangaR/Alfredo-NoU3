@@ -14,6 +14,10 @@
 
 #include "Alfredo_NoU3_MMC5.h"
 
+#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_MMC5)
+SFE_MMC5983MA MMC5;
+#endif
+
 bool SFE_MMC5983MA::setShadowBit(uint8_t registerAddress, const uint8_t bitMask, bool doWrite)
 {
     uint8_t *shadowRegister = nullptr;
@@ -189,28 +193,6 @@ bool SFE_MMC5983MA::begin(TwoWire &wirePort)
     if (!success)
     {
         SAFE_CALLBACK(errorCallback, SF_MMC5983MA_ERROR::I2C_INITIALIZATION_ERROR);
-        return false;
-    }
-    return isConnected();
-}
-
-bool SFE_MMC5983MA::begin(uint8_t userCSPin, SPIClass &spiPort)
-{
-    bool success = mmc_io.begin(userCSPin, spiPort);
-    if (!success)
-    {
-        SAFE_CALLBACK(errorCallback, SF_MMC5983MA_ERROR::SPI_INITIALIZATION_ERROR);
-        return false;
-    }
-    return isConnected();
-}
-
-bool SFE_MMC5983MA::begin(uint8_t userCSPin, SPISettings userSettings, SPIClass &spiPort)
-{
-    bool success = mmc_io.begin(userCSPin, userSettings, spiPort);
-    if (!success)
-    {
-        SAFE_CALLBACK(errorCallback, SF_MMC5983MA_ERROR::SPI_INITIALIZATION_ERROR);
         return false;
     }
     return isConnected();
@@ -1065,6 +1047,23 @@ bool SFE_MMC5983MA::readFieldsXYZ(uint32_t *x, uint32_t *y, uint32_t *z)
     return success;
 }
 
+bool SFE_MMC5983MA::readAccelerometer(float *x, float *y, float *z)
+{
+	uint32_t rawValueX = 0, rawValueY = 0, rawValueZ = 0;
+	bool success = readFieldsXYZ(&rawValueX, &rawValueY, &rawValueZ);
+	
+    *x = (float)rawValueX - 131072.0;
+    *x /= 131072.0 / 800.0;
+
+    *y = (float)rawValueY - 131072.0;
+    *y /= 131072.0 / 800.0;
+
+    *z = (float)rawValueZ - 131072.0;
+    *z /= 131072.0 / 800.0;
+	
+	return success;
+}
+
 bool SFE_MMC5983MA::clearMeasDoneInterrupt(uint8_t measMask)
 {
     // Ensure only the Meas_T_Done and Meas_M_Done interrupts can be cleared
@@ -1090,32 +1089,6 @@ void SFE_MMC5983MA_IO::initSPISettings()
     // CPOL = 1, CPHA = 1 : SPI Mode 3 according to datasheet
     //  In practice SPI_MODE0 is what worked.
     _mmcSpiSettings = SPISettings(2000000, MSBFIRST, SPI_MODE0);
-}
-
-bool SFE_MMC5983MA_IO::begin(const uint8_t csPin, SPIClass &spiPort)
-{
-    useSPI = true;
-    _csPin = csPin;
-    digitalWrite(_csPin, HIGH);
-    pinMode(_csPin, OUTPUT);
-    _spiPort = &spiPort;
-
-    initSPISettings();
-
-    return isConnected();
-}
-
-bool SFE_MMC5983MA_IO::begin(const uint8_t csPin, SPISettings userSettings, SPIClass &spiPort)
-{
-    useSPI = true;
-    _csPin = csPin;
-    digitalWrite(_csPin, HIGH);
-    pinMode(_csPin, OUTPUT);
-    _spiPort = &spiPort;
-
-    _mmcSpiSettings = userSettings;
-
-    return isConnected();
 }
 
 bool SFE_MMC5983MA_IO::isConnected()
@@ -1271,3 +1244,4 @@ bool SFE_MMC5983MA_IO::spiInUse()
 {
     return useSPI;
 }
+

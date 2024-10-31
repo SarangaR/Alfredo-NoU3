@@ -24,22 +24,52 @@
 #include <Wire.h>
 #include <SPI.h>
 
+#define LSM6DSOX_ADDRESS            0x6B
+
+#define LSM6DSOX_INT1_CTRL          0X0D
+#define LSM6DSOX_WHO_AM_I_REG       0X0F
+#define LSM6DSOX_CTRL1_A            0X10
+#define LSM6DSOX_CTRL2_G            0X11
+
+
+#define LSM6DSOX_CTRL6_C            0X15
+#define LSM6DSOX_CTRL7_G            0X16
+#define LSM6DSOX_CTRL8_A            0X17
+
+#define LSM6DSOX_STATUS_REG         0X1E
+
+#define LSM6DSOX_OUT_TEMP_L         0X20
+#define LSM6DSOX_OUT_TEMP_H         0X21
+
+#define LSM6DSOX_OUTX_L_G           0X22
+#define LSM6DSOX_OUTX_H_G           0X23
+#define LSM6DSOX_OUTY_L_G           0X24
+#define LSM6DSOX_OUTY_H_G           0X25
+#define LSM6DSOX_OUTZ_L_G           0X26
+#define LSM6DSOX_OUTZ_H_G           0X27
+
+#define LSM6DSOX_OUTX_L_A           0X28
+#define LSM6DSOX_OUTX_H_A           0X29
+#define LSM6DSOX_OUTY_L_A           0X2A
+#define LSM6DSOX_OUTY_H_A           0X2B
+#define LSM6DSOX_OUTZ_L_A           0X2C
+#define LSM6DSOX_OUTZ_H_A           0X2D
+
 class LSM6DSOXClass {
   public:
-    LSM6DSOXClass(TwoWire& wire, uint8_t slaveAddress);
-    LSM6DSOXClass(SPIClass& spi, int csPin, int irqPin);
+    LSM6DSOXClass();
     ~LSM6DSOXClass();
 
-    int begin();
+    int begin(TwoWire& wire);
     void end();
 
     // Accelerometer
-    int readAcceleration(float& x, float& y, float& z); // Results are in g (earth gravity).
+    int readAcceleration(float *x, float *y, float *z); // Results are in g (earth gravity).
     float accelerationSampleRate(); // Sampling rate of the sensor.
     int accelerationAvailable(); // Check for available data from accelerometer
 
     // Gyroscope
-    int readGyroscope(float& x, float& y, float& z); // Results are in degrees/second.
+    int readGyroscope(float *x, float *y, float *z); // Results are in degrees/second.
     float gyroscopeSampleRate(); // Sampling rate of the sensor.
     int gyroscopeAvailable(); // Check for available data from gyroscope
 
@@ -47,25 +77,22 @@ class LSM6DSOXClass {
     int readTemperature(int& temperature_deg);
     int readTemperatureFloat(float& temperature_deg);
     int temperatureAvailable();
+	
+	// Interrupt
+	void enableInterrupt();
 
   private:
     int readRegister(uint8_t address);
     int readRegisters(uint8_t address, uint8_t* data, size_t length);
     int writeRegister(uint8_t address, uint8_t value);
 
-
-  private:
-    TwoWire* _wire;
-    SPIClass* _spi;
+    TwoWire* _wire = nullptr;
     uint8_t _slaveAddress;
-    int _csPin;
     int _irqPin;
-
-    SPISettings _spiSettings;
 };
 
-extern LSM6DSOXClass IMU_LSM6DSOX;
-#undef IMU
-#define IMU IMU_LSM6DSOX
+#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_LSM6)
+extern LSM6DSOXClass LSM6;
+#endif
 
 #endif

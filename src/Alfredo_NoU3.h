@@ -1,12 +1,11 @@
 #ifndef ALFREDO_NOU3_H
 #define ALFREDO_NOU3_H
 
-#include "Alfredo_NoU3_PCA9.h"
-#include "Alfredo_NoU3_Encoder.h"
+#include <inttypes.h>
+
 #include "Alfredo_NoU3_LSM6.h"
 #include "Alfredo_NoU3_MMC5.h"
-
-#include <inttypes.h>
+#include "Alfredo_NoU3_PCA9.h"
 
 #define PIN_SNS_VERSION  1
 #define PIN_SNS_VIN      2
@@ -46,7 +45,7 @@ const int RSL_PWM_FREQ = 1000; // Hz
 
 class NoU_Agent {
     public:
-		void begin(){ NoU3_PCA9_Begin(); };
+		void begin();
 		float getBatteryVoltage(){ return analogReadMilliVolts(PIN_SNS_VIN) * 0.001 * 7.818; };
 		float getVersionVoltage(){ return analogReadMilliVolts(PIN_SNS_VERSION) * 0.001 ; };
 };

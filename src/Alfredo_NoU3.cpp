@@ -1,6 +1,10 @@
 #include "esp32-hal-ledc.h"
 #include "Arduino.h"
+
 #include "Alfredo_NoU3.h"
+
+#include "Alfredo_NoU3_LSM6.h"
+#include "Alfredo_NoU3_MMC5.h"
 #include "Alfredo_NoU3_PCA9.h"
 
 #if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_NOU3)
@@ -11,6 +15,12 @@ uint8_t RSL::state = RSL_OFF;
 
 float fmap(float val, float in_min, float in_max, float out_min, float out_max) {
     return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+void NoU_Agent::begin()
+{
+	 NoU3_PCA9_Begin();
+	 Wire1.begin(35, 36, 400000);
 }
 
 NoU_Motor::NoU_Motor(uint8_t motorPort)
@@ -131,14 +141,12 @@ float NoU_Drivetrain::applyInputCurve(float input) {
 }
 
 void NoU_Drivetrain::setMotors(float frontLeftPower, float frontRightPower, float rearLeftPower, float rearRightPower) {
-    switch (drivetrainType) {
-        case FOUR_MOTORS:
-            rearLeftMotor->set(rearLeftPower);
-            rearRightMotor->set(rearRightPower);
-        case TWO_MOTORS:
-            frontLeftMotor->set(frontLeftPower);
-            frontRightMotor->set(frontRightPower);
+    if (drivetrainType == FOUR_MOTORS) {
+        rearLeftMotor->set(rearLeftPower);
+        rearRightMotor->set(rearRightPower);
     }
+    frontLeftMotor->set(frontLeftPower);
+    frontRightMotor->set(frontRightPower);
 }
 
 void NoU_Drivetrain::tankDrive(float leftPower, float rightPower) {
@@ -247,25 +255,21 @@ void NoU_Drivetrain::holonomicDrive(float xVelocity, float yVelocity, float rota
 }
 
 void NoU_Drivetrain::setMinimumOutput(float minimumOutput) {
-    switch (drivetrainType) {
-        case FOUR_MOTORS:
-            rearLeftMotor->setMinimumOutput(minimumOutput);
-            rearRightMotor->setMinimumOutput(minimumOutput);
-        case TWO_MOTORS:
-            frontLeftMotor->setMinimumOutput(minimumOutput);
-            frontRightMotor->setMinimumOutput(minimumOutput);
+    if (drivetrainType == FOUR_MOTORS) {
+		rearLeftMotor->setMinimumOutput(minimumOutput);
+		rearRightMotor->setMinimumOutput(minimumOutput);
     }
+	frontLeftMotor->setMinimumOutput(minimumOutput);
+    frontRightMotor->setMinimumOutput(minimumOutput);
 }
 
 void NoU_Drivetrain::setMaximumOutput(float maximumOutput) {
-    switch (drivetrainType) {
-        case FOUR_MOTORS:
-            rearLeftMotor->setMaximumOutput(maximumOutput);
-            rearRightMotor->setMaximumOutput(maximumOutput);
-        case TWO_MOTORS:
-            frontLeftMotor->setMaximumOutput(maximumOutput);
-            frontRightMotor->setMaximumOutput(maximumOutput);
+    if (drivetrainType == FOUR_MOTORS) {
+		rearLeftMotor->setMaximumOutput(maximumOutput);
+		rearRightMotor->setMaximumOutput(maximumOutput);
     }
+	frontLeftMotor->setMaximumOutput(maximumOutput);
+	frontRightMotor->setMaximumOutput(maximumOutput);
 }
 
 void NoU_Drivetrain::setInputExponent(float inputExponent) {
