@@ -41,6 +41,8 @@ void setup() {
   Serial.println("Accel_X\tAccel_Y\tAccel_Z\tGyro_X\tGyro_Y\tGyro_Z\tMag_X\tMag_Y\tMag_Z");
 }
 
+long lastPrintMs = 0;  // Stores the last time the function was called
+
 void loop() {
   // Check LSM6 for new data
   if (newDataAvailableLSM6) {
@@ -63,16 +65,19 @@ void loop() {
     MMC5.readAccelerometer(&magnetometer_X, &magnetometer_Y, &magnetometer_Z);  // Results in µT (microteslas).
   }
 
-  formatPrint(acceleration_x);
-  formatPrint(acceleration_y);
-  formatPrint(acceleration_z);
-  formatPrint(gyroscope_x);
-  formatPrint(gyroscope_y);
-  formatPrint(gyroscope_z);
-  formatPrint(magnetometer_X);
-  formatPrint(magnetometer_Y);
-  formatPrint(magnetometer_Z);
-  Serial.println('\t');
+  if (millis() - lastPrintMs >= 100) {
+    lastPrintMs = millis();  // Update the last time the function was called
+    formatPrint(acceleration_x);
+    formatPrint(acceleration_y);
+    formatPrint(acceleration_z);
+    formatPrint(gyroscope_x);
+    formatPrint(gyroscope_y);
+    formatPrint(gyroscope_z);
+    formatPrint(magnetometer_X);
+    formatPrint(magnetometer_Y);
+    formatPrint(magnetometer_Z);
+    Serial.println('\t');
+  }
 }
 
 void interruptRoutineLSM6() {

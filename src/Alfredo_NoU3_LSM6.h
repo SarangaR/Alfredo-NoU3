@@ -91,8 +91,4 @@ class LSM6DSOXClass {
     int _irqPin;
 };
 
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_LSM6)
-extern LSM6DSOXClass LSM6;
-#endif
-
 #endif

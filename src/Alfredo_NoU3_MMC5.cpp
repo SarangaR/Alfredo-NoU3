@@ -14,10 +14,6 @@
 
 #include "Alfredo_NoU3_MMC5.h"
 
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_MMC5)
-SFE_MMC5983MA MMC5;
-#endif
-
 bool SFE_MMC5983MA::setShadowBit(uint8_t registerAddress, const uint8_t bitMask, bool doWrite)
 {
     uint8_t *shadowRegister = nullptr;

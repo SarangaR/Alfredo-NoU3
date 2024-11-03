@@ -5,7 +5,6 @@
 
 #include "Alfredo_NoU3_LSM6.h"
 #include "Alfredo_NoU3_MMC5.h"
-#include "Alfredo_NoU3_PCA9.h"
 
 #define PIN_SNS_VERSION  1
 #define PIN_SNS_VIN      2
@@ -16,6 +15,8 @@
 #define PIN_SERVO_4 7
 #define PIN_SERVO_5 8
 #define PIN_SERVO_6 9
+const int PIN_SDA_SF = 35;
+const int PIN_SCL_SF = 36;
 #define RSL_PIN 45
 
 // PWM Configuration
@@ -42,9 +43,9 @@ const int RSL_PWM_FREQ = 1000; // Hz
 #define TWO_MOTORS 0
 #define FOUR_MOTORS 1
 
-
 class NoU_Agent {
     public:
+		NoU_Agent();
 		void begin();
 		float getBatteryVoltage(){ return analogReadMilliVolts(PIN_SNS_VIN) * 0.001 * 7.818; };
 		float getVersionVoltage(){ return analogReadMilliVolts(PIN_SNS_VERSION) * 0.001 ; };
@@ -126,8 +127,8 @@ class RSL {
         static uint8_t state;
 };
 
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_NOU3)
 extern NoU_Agent NoU3;
-#endif
+extern LSM6DSOXClass LSM6;
+extern SFE_MMC5983MA MMC5;
 
 #endif

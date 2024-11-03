@@ -4,9 +4,6 @@
 #ifndef ALFREDO_NOU3_PCA9_H
 #define ALFREDO_NOU3_PCA9_H
 
-void NoU3_PCA9_Begin();
-void NoU3_PCA9_SetMotor(uint8_t motorPort, float motorPower);
-
 class PCA9685
 {
 public:

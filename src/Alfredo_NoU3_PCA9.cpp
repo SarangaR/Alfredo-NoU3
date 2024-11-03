@@ -16,7 +16,8 @@ void PCA9685::setupSingleDevice(TwoWire & wire,
   DeviceAddress device_address,
   bool fast_mode_plus)
 {
-  setWire(Wire,fast_mode_plus);
+  wire_ptr_ = &wire;
+  //setWire(wire,fast_mode_plus);
   addDevice(device_address);
   resetAllDevices();
 }
@@ -1033,37 +1034,5 @@ void PCA9685::read(DeviceIndex device_index,
   for (int byte_n=0; byte_n<byte_count; ++byte_n)
   {
     data |= (wire_ptr_->read()) << (BITS_PER_BYTE * byte_n);
-  }
-}
-
-//----------------------------------------------------------------------------------------------------------
-
-PCA9685 pca9685;
-
-uint8_t portMap [8][2] = {{4,5},{6,7},{8,9},{10,11},{14,15},{12,13},{2,3},{0,1}};
-
-void NoU3_PCA9_Begin() {
-  Wire.setPins(35, 36);
-
-  pca9685.setupSingleDevice(Wire, 0x40);
-
-  pca9685.setupOutputEnablePin(12);
-  pca9685.enableOutputs(12);
-
-  pca9685.setToFrequency(1500);
-}
-
-
-void NoU3_PCA9_SetMotor(uint8_t motorPort, float motorPower){
-  //if(motorPort == 1) Serial.println(motorPower);
-  
-  if(motorPower >= 0){
-    pca9685.setChannelDutyCycle(portMap[motorPort-1][0], abs(motorPower*100));
-    pca9685.setChannelDutyCycle(portMap[motorPort-1][1], 0);
-	
-  } else {
-    pca9685.setChannelDutyCycle(portMap[motorPort-1][0], 0);
-    pca9685.setChannelDutyCycle(portMap[motorPort-1][1], abs(motorPower*100));
-	
   }
 }

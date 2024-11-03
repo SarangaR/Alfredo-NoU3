@@ -19,10 +19,6 @@
 
 #include "Alfredo_NoU3_LSM6.h"
 
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_LSM6)
-LSM6DSOXClass LSM6;
-#endif
-
 LSM6DSOXClass::LSM6DSOXClass()
 {
 }

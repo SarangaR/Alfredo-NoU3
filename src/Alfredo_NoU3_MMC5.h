@@ -333,8 +333,4 @@ public:
   bool clearMeasDoneInterrupt(uint8_t measMask = MEAS_T_DONE | MEAS_M_DONE);
 };
 
-#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_MMC5)
-extern SFE_MMC5983MA MMC5;
-#endif
-
 #endif
