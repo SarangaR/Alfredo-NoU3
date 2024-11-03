@@ -21,6 +21,15 @@ float fmap(float val, float in_min, float in_max, float out_min, float out_max)
     return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+volatile bool newDataAvailableLSM6 = true;
+volatile bool newDataAvailableMMC5 = true;
+void interruptRoutineLSM6() {
+  newDataAvailableLSM6 = true;
+}
+void interruptRoutineMMC5() {
+  newDataAvailableMMC5 = true;
+}
+
 NoU_Agent::NoU_Agent()
 {
     Wire1.begin(PIN_SDA_SF, PIN_SCL_SF, 400000);
@@ -28,10 +37,66 @@ NoU_Agent::NoU_Agent()
 
 void NoU_Agent::begin()
 {
+    beginMotors();
+    beginIMUs();
+}
+
+void NoU_Agent::beginMotors()
+{
     pca9685.setupSingleDevice(Wire1, 0x40);
     pca9685.setupOutputEnablePin(12);
     pca9685.enableOutputs(12);
     pca9685.setToFrequency(1500);
+}
+
+void NoU_Agent::beginIMUs()
+{
+    // Initialize LSM6
+    if (LSM6.begin(Wire1) == false)
+    {
+        Serial.println("LSM6 did not respond.");
+    }
+    pinMode(PIN_INTERRUPT_LSM6, INPUT);
+    attachInterrupt(digitalPinToInterrupt(PIN_INTERRUPT_LSM6), interruptRoutineLSM6, RISING);
+    LSM6.enableInterrupt(); // LSM6 collects readins at 104 hz
+
+    // Initialize MMC5
+    if (MMC5.begin(Wire1) == false)
+    {
+        Serial.println("MMC5983MA did not respond.");
+    }
+    MMC5.softReset();
+    MMC5.setFilterBandwidth(800);
+    MMC5.setContinuousModeFrequency(100); // Allowed values are 1000, 200, 100, 50, 20, 10, 1 and 0
+    MMC5.enableAutomaticSetReset();
+    MMC5.enableContinuousMode();
+    pinMode(PIN_INTERRUPT_MMC5, INPUT);
+    attachInterrupt(digitalPinToInterrupt(PIN_INTERRUPT_MMC5), interruptRoutineMMC5, RISING);
+    MMC5.enableInterrupt();
+}
+
+void NoU_Agent::updateIMUs()
+{
+  // Check LSM6 for new data
+  if (newDataAvailableLSM6) {
+    newDataAvailableLSM6 = false;
+
+    if (LSM6.accelerationAvailable()) {
+      LSM6.readAcceleration(&acceleration_x, &acceleration_y, &acceleration_z);
+    }
+
+    if (LSM6.gyroscopeAvailable()) {
+      LSM6.readGyroscope(&gyroscope_x, &gyroscope_y, &gyroscope_z);
+    }
+  }
+
+  // Check MMC5983MA for new data
+  if (newDataAvailableMMC5) {
+    newDataAvailableMMC5 = false;
+    MMC5.clearMeasDoneInterrupt();
+
+    MMC5.readAccelerometer(&magnetometer_X, &magnetometer_Y, &magnetometer_Z);  // Results in µT (microteslas).
+  }
 }
 
 NoU_Motor::NoU_Motor(uint8_t motorPort)
@@ -58,7 +123,6 @@ void NoU_Motor::set(float output)
         pca9685.setChannelDutyCycle(portMap[this->motorPort - 1][0], 0);
         pca9685.setChannelDutyCycle(portMap[this->motorPort - 1][1], abs(motorPower * 100));
     }
-
 }
 
 float NoU_Motor::applyCurve(float input)

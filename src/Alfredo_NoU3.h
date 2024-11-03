@@ -19,6 +19,9 @@ const int PIN_SDA_SF = 35;
 const int PIN_SCL_SF = 36;
 #define RSL_PIN 45
 
+const int PIN_INTERRUPT_LSM6 = 48;
+const int PIN_INTERRUPT_MMC5 = 47;
+
 // PWM Configuration
 const int SERVO_PWM_RES = 12; // bits
 const int SERVO_PWM_FREQ = 50; // Hz
@@ -47,8 +50,15 @@ class NoU_Agent {
     public:
 		NoU_Agent();
 		void begin();
+		void beginMotors();
+		void beginIMUs();
+        void updateIMUs();
 		float getBatteryVoltage(){ return analogReadMilliVolts(PIN_SNS_VIN) * 0.001 * 7.818; };
 		float getVersionVoltage(){ return analogReadMilliVolts(PIN_SNS_VERSION) * 0.001 ; };
+
+        float acceleration_x, acceleration_y, acceleration_z;
+        float gyroscope_x, gyroscope_y, gyroscope_z;
+        float magnetometer_X, magnetometer_Y, magnetometer_Z;
 };
 
 class NoU_Motor {
