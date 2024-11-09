@@ -55,10 +55,13 @@ class NoU_Agent {
         void updateIMUs();
 		float getBatteryVoltage(){ return analogReadMilliVolts(PIN_SNS_VIN) * 0.001 * 7.818; };
 		float getVersionVoltage(){ return analogReadMilliVolts(PIN_SNS_VERSION) * 0.001 ; };
+        bool checkDataIMU();
 
         float acceleration_x, acceleration_y, acceleration_z;
         float gyroscope_x, gyroscope_y, gyroscope_z;
-        float magnetometer_X, magnetometer_Y, magnetometer_Z;
+        float magnetometer_x, magnetometer_y, magnetometer_z;
+
+        bool newDataAvailableIMU;
 };
 
 class NoU_Motor {

@@ -27,28 +27,28 @@ void setup() {
   }
 
   // in uTesla
-  cal.mag_hardiron[0] = 9.7;
-  cal.mag_hardiron[1] = -0.41;
-  cal.mag_hardiron[2] = 3.57;
+  cal.mag_hardiron[0] = -0.02;
+  cal.mag_hardiron[1] = -1.17;
+  cal.mag_hardiron[2] = 7.73;
 
   // in uTesla
-  cal.mag_softiron[0] = 0.991;
-  cal.mag_softiron[1] = -0.001;
-  cal.mag_softiron[2] = 0.002;  
-  cal.mag_softiron[3] = -0.001;
-  cal.mag_softiron[4] = 1.002;
-  cal.mag_softiron[5] = -0.011;  
-  cal.mag_softiron[6] = 0.002;
-  cal.mag_softiron[7] = 0.011;
-  cal.mag_softiron[8] = 1.008;
+  cal.mag_softiron[0] = 1.0;
+  cal.mag_softiron[1] = 0.0;
+  cal.mag_softiron[2] = 0.0;  
+  cal.mag_softiron[3] = 0.0;
+  cal.mag_softiron[4] = 1.0;
+  cal.mag_softiron[5] = 0.0;  
+  cal.mag_softiron[6] = 0.0;
+  cal.mag_softiron[7] = 0.0;
+  cal.mag_softiron[8] = 1.0;
   // Earth total magnetic field strength in uTesla (dependent on location and time of the year),
   // visit: https://www.ngdc.noaa.gov/geomag/calculators/magcalc.shtml#igrfwmm)
-  cal.mag_field = 47.27; // approximate value for locations along the equator
+  cal.mag_field = 47.00; // approximate value for locations along the equator
 
   // in Radians/s
-  cal.gyro_zerorate[0] = 0.0;
-  cal.gyro_zerorate[1] = 0.0;
-  cal.gyro_zerorate[2] = 0.0;
+  cal.gyro_zerorate[0] = 0.50;
+  cal.gyro_zerorate[1] = 0.40;
+  cal.gyro_zerorate[2] = -0.50;
 
   cal.accel_zerog[0] = 0.0;
   cal.accel_zerog[1] = 0.0;

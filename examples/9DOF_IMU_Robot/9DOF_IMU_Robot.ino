@@ -5,7 +5,6 @@ void setup() {
   NoU3.beginMotors();
   NoU3.beginIMUs();
 
-  Serial.println();
   Serial.println("Accel_X\tAccel_Y\tAccel_Z\tGyro_X\tGyro_Y\tGyro_Z\tMag_X\tMag_Y\tMag_Z");
 }
 
@@ -23,9 +22,9 @@ void loop() {
     formatPrint(NoU3.gyroscope_x);
     formatPrint(NoU3.gyroscope_y);
     formatPrint(NoU3.gyroscope_z);
-    formatPrint(NoU3.magnetometer_X);
-    formatPrint(NoU3.magnetometer_Y);
-    formatPrint(NoU3.magnetometer_Z);
+    formatPrint(NoU3.magnetometer_x);
+    formatPrint(NoU3.magnetometer_y);
+    formatPrint(NoU3.magnetometer_z);
     Serial.println('\t');
   }
 }

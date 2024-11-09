@@ -41,14 +41,16 @@ int LSM6DSOXClass::begin(TwoWire& wire)
   //set the gyroscope control register to work at 104 Hz, 2000 dps and in bypass mode
   //writeRegister(LSM6DSOX_CTRL2_G, 0x4C); //0100 1100
   //set the gyroscope control register to work at 26 Hz, 2000 dps and in bypass mode
-  writeRegister(LSM6DSOX_CTRL2_G, 0x2C); //0010 1100
+  //writeRegister(LSM6DSOX_CTRL2_G, 0x2C); //0010 1100
+  //set the gyroscope control register to work at 104 Hz, 500 dps and in bypass mode
+  writeRegister(LSM6DSOX_CTRL2_G, 0x44); //0100 0100
 
   // Set the Accelerometer control register to work at 104 Hz, 4 g,and in bypass mode and enable ODR/4
   // low pass filter (check figure9 of LSM6DSOX's datasheet)
   writeRegister(LSM6DSOX_CTRL1_A, 0x4A);
 
   // set gyroscope power mode to high performance and bandwidth to 16 MHz
-  writeRegister(LSM6DSOX_CTRL7_G, 0x00);
+  writeRegister(LSM6DSOX_CTRL7_G, 0x00);//0000 0000
 
   // Set the ODR config register to ODR/4
   writeRegister(LSM6DSOX_CTRL8_A, 0x09);
@@ -75,9 +77,10 @@ int LSM6DSOXClass::readAcceleration(float *x, float *y, float *z)
     return 0;
   }
 
-  *x = data[0] * 4.0 / 32768.0;
-  *y = data[1] * 4.0 / 32768.0;
-  *z = data[2] * 4.0 / 32768.0;
+  //REORDERED FOR NOU3 CONVENTION
+  *x = -1 * data[1] * 4.0 / 32768.0;
+  *y =      data[0] * 4.0 / 32768.0;
+  *z =      data[2] * 4.0 / 32768.0;
 
   return 1;
 }
@@ -108,9 +111,10 @@ int LSM6DSOXClass::readGyroscope(float *x, float *y, float *z)
     return 0;
   }
 
-  *x = data[0] * 2000.0 / 32768.0;
-  *y = data[1] * 2000.0 / 32768.0;
-  *z = data[2] * 2000.0 / 32768.0;
+  //REORDERED FOR NOU3 CONVENTION
+  *x = -1 * float(data[1]) * 500.0 / 32768.0;
+  *y =      float(data[0]) * 500.0 / 32768.0;
+  *z =      float(data[2]) * 500.0 / 32768.0;
 
   return 1;
 }

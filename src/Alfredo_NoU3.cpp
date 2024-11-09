@@ -55,6 +55,8 @@ void NoU_Agent::beginIMUs()
     if (LSM6.begin(Wire1) == false)
     {
         Serial.println("LSM6 did not respond.");
+    } else {
+        //Serial.println("LSM6 is good.");
     }
     pinMode(PIN_INTERRUPT_LSM6, INPUT);
     attachInterrupt(digitalPinToInterrupt(PIN_INTERRUPT_LSM6), interruptRoutineLSM6, RISING);
@@ -63,7 +65,9 @@ void NoU_Agent::beginIMUs()
     // Initialize MMC5
     if (MMC5.begin(Wire1) == false)
     {
-        Serial.println("MMC5983MA did not respond.");
+        Serial.println("MMC5 did not respond.");
+    } else {
+        //Serial.println("MMC5 is good.");
     }
     MMC5.softReset();
     MMC5.setFilterBandwidth(800);
@@ -82,11 +86,14 @@ void NoU_Agent::updateIMUs()
     newDataAvailableLSM6 = false;
 
     if (LSM6.accelerationAvailable()) {
-      LSM6.readAcceleration(&acceleration_x, &acceleration_y, &acceleration_z);
+      LSM6.readAcceleration(&acceleration_x, &acceleration_y, &acceleration_z);// result in Gs
+      newDataAvailableIMU = true;
     }
 
     if (LSM6.gyroscopeAvailable()) {
-      LSM6.readGyroscope(&gyroscope_x, &gyroscope_y, &gyroscope_z);
+      LSM6.readGyroscope(&gyroscope_x, &gyroscope_y, &gyroscope_z);  // Results in degrees per second
+    newDataAvailableIMU = true;
+
     }
   }
 
@@ -95,9 +102,17 @@ void NoU_Agent::updateIMUs()
     newDataAvailableMMC5 = false;
     MMC5.clearMeasDoneInterrupt();
 
-    MMC5.readAccelerometer(&magnetometer_X, &magnetometer_Y, &magnetometer_Z);  // Results in µT (microteslas).
+    MMC5.readAccelerometer(&magnetometer_x, &magnetometer_y, &magnetometer_z);  // Results in µT (microteslas)
+    newDataAvailableIMU = true;
   }
 }
+
+bool NoU_Agent::checkDataIMU(){ 
+    bool result = newDataAvailableIMU;
+    newDataAvailableIMU = false;
+    return result;
+};
+
 
 NoU_Motor::NoU_Motor(uint8_t motorPort)
 {

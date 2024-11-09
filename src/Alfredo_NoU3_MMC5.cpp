@@ -1047,16 +1047,20 @@ bool SFE_MMC5983MA::readAccelerometer(float *x, float *y, float *z)
 {
 	uint32_t rawValueX = 0, rawValueY = 0, rawValueZ = 0;
 	bool success = readFieldsXYZ(&rawValueX, &rawValueY, &rawValueZ);
-	
+
     *x = (float)rawValueX - 131072.0;
-    *x /= 131072.0 / 800.0;
 
     *y = (float)rawValueY - 131072.0;
-    *y /= 131072.0 / 800.0;
 
     *z = (float)rawValueZ - 131072.0;
-    *z /= 131072.0 / 800.0;
-	
+
+    *x /= (131072.0 / 800.0);
+    *y /= (131072.0 / 800.0);
+    *z /= (131072.0 / 800.0);
+
+    //FLIPPED FOR NOU3 CONVENTION
+	*z *= -1.0;
+
 	return success;
 }
 
