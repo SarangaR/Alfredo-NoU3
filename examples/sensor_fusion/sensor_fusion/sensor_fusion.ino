@@ -5,8 +5,8 @@
 
 // pick your filter! slower == better quality output
 //Adafruit_NXPSensorFusion filter; // slowest
-//Adafruit_Madgwick filter;  // faster than NXP
-Adafruit_Mahony filter;  // fastest/smalleset
+Adafruit_Madgwick filter;  // faster than NXP
+//Adafruit_Mahony filter;  // fastest/smalleset
 Adafruit_Sensor_Calibration_EEPROM cal;
 #define FILTER_UPDATE_RATE_HZ 80
 #define PRINT_EVERY_N_UPDATES 10
@@ -90,7 +90,7 @@ void loop() {
     //mag_z -= cal.accel_zerog[2];
 
     // Update the SensorFusion filter
-    filter.update(gyr_x, gyr_y, gyr_z, acl_x, acl_y, acl_z, mag_x, mag_y, mag_z);
+    filter.update(gyr_x * 0.0174533, gyr_y * 0.0174533, gyr_z * 0.0174533, acl_x, acl_y, acl_z, mag_x, mag_y, mag_z);
 
     // only print the calculated output once in a while
     if (counter++ >= PRINT_EVERY_N_UPDATES) {
@@ -109,16 +109,18 @@ void loop() {
       Serial.print(", ");
       Serial.println(roll);
 
+      /*
       float qw, qx, qy, qz;
       filter.getQuaternion(&qw, &qx, &qy, &qz);
-      // Serial.print("Quaternion: ");
-      // Serial.print(qw, 4);
-      // Serial.print(", ");
-      // Serial.print(qx, 4);
-      // Serial.print(", ");
-      // Serial.print(qy, 4);
-      // Serial.print(", ");
-      // Serial.println(qz, 4);
+      Serial.print("Quaternion: ");
+      Serial.print(qw, 4);
+      Serial.print(", ");
+      Serial.print(qx, 4);
+      Serial.print(", ");
+      Serial.print(qy, 4);
+      Serial.print(", ");
+      Serial.println(qz, 4);
+      */
     }
   }
 }

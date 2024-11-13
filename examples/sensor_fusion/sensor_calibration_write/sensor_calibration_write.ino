@@ -27,9 +27,9 @@ void setup() {
   }
 
   // in uTesla
-  cal.mag_hardiron[0] = -0.02;
-  cal.mag_hardiron[1] = -1.17;
-  cal.mag_hardiron[2] = 7.73;
+  cal.mag_hardiron[0] = 3.6;
+  cal.mag_hardiron[1] = 3.3;
+  cal.mag_hardiron[2] = -14.0;
 
   // in uTesla
   cal.mag_softiron[0] = 1.0;
