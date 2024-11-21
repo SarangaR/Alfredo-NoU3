@@ -21,6 +21,12 @@ float fmap(float val, float in_min, float in_max, float out_min, float out_max)
     return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+void ledcAttachChannel(uint8_t pin, int freq, int resolution, uint8_t channel)
+{
+    ledcSetup(channel, freq, resolution);
+    ledcAttachPin(pin, channel);
+}
+
 volatile bool newDataAvailableLSM6 = true;
 volatile bool newDataAvailableMMC5 = true;
 void interruptRoutineLSM6() {
