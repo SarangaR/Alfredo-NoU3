@@ -14,8 +14,6 @@ SFE_MMC5983MA MMC5;
 
 NoU_Agent NoU3;
 
-uint8_t RSL::state = RSL_OFF;
-
 float fmap(float val, float in_min, float in_max, float out_min, float out_max)
 {
     return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -30,15 +28,14 @@ void interruptRoutineMMC5() {
   newDataAvailableMMC5 = true;
 }
 
-NoU_Agent::NoU_Agent()
-{
-    Wire1.begin(PIN_SDA_SF, PIN_SCL_SF, 400000);
-}
-
 void NoU_Agent::begin()
 {
+    Wire.begin(PIN_I2C_SDA_QWIIC, PIN_I2C_SCL_QWIIC, 400000);
+
+    Wire1.begin(PIN_I2C_SDA_IMU, PIN_I2C_SCL_IMU, 400000);
     beginMotors();
     beginIMUs();
+    beginServiceLight();
 }
 
 void NoU_Agent::beginMotors()
@@ -60,7 +57,7 @@ void NoU_Agent::beginIMUs()
     }
     pinMode(PIN_INTERRUPT_LSM6, INPUT);
     attachInterrupt(digitalPinToInterrupt(PIN_INTERRUPT_LSM6), interruptRoutineLSM6, RISING);
-    LSM6.enableInterrupt(); // LSM6 collects readins at 104 hz
+    LSM6.enableInterrupt(); // LSM6 collects readings at 104 hz
 
     // Initialize MMC5
     if (MMC5.begin(Wire1) == false)
@@ -79,40 +76,66 @@ void NoU_Agent::beginIMUs()
     MMC5.enableInterrupt();
 }
 
-void NoU_Agent::updateIMUs()
+bool NoU_Agent::updateIMUs()
 {
+  bool isDataNew = false;
   // Check LSM6 for new data
   if (newDataAvailableLSM6) {
+    isDataNew = true;
     newDataAvailableLSM6 = false;
 
     if (LSM6.accelerationAvailable()) {
       LSM6.readAcceleration(&acceleration_x, &acceleration_y, &acceleration_z);// result in Gs
-      newDataAvailableIMU = true;
     }
 
     if (LSM6.gyroscopeAvailable()) {
       LSM6.readGyroscope(&gyroscope_x, &gyroscope_y, &gyroscope_z);  // Results in degrees per second
-    newDataAvailableIMU = true;
 
     }
   }
 
   // Check MMC5983MA for new data
   if (newDataAvailableMMC5) {
+    isDataNew = true;
     newDataAvailableMMC5 = false;
     MMC5.clearMeasDoneInterrupt();
 
     MMC5.readAccelerometer(&magnetometer_x, &magnetometer_y, &magnetometer_z);  // Results in µT (microteslas)
-    newDataAvailableIMU = true;
   }
+
+  return isDataNew;
+}   
+
+void NoU_Agent::beginServiceLight()
+{
+    ledcAttachChannel(RSL_PIN, RSL_PWM_FREQ, RSL_PWM_RES, RSL_CHANNEL);
+    setServiceLight(LIGHT_DISABLED);
+    updateServiceLight();
 }
 
-bool NoU_Agent::checkDataIMU(){ 
-    bool result = newDataAvailableIMU;
-    newDataAvailableIMU = false;
-    return result;
-};
+void NoU_Agent::setServiceLight(serviceLightState state)
+{
+    stateServiceLight = state;
+}
 
+void NoU_Agent::updateServiceLight()
+{
+    switch (stateServiceLight)
+    {
+    case LIGHT_OFF:
+        ledcWrite(RSL_PIN, 1);
+        break;
+    case LIGHT_ON:
+        ledcWrite(RSL_PIN, (1 << RSL_PWM_RES) - 1);
+        break;
+    case LIGHT_ENABLED:
+        ledcWrite(RSL_PIN, millis() % 1000 < 500 ? (millis() % 500) * 2 : (500 - (millis() % 500)) * 2);
+        break;
+    case LIGHT_DISABLED:
+        ledcWrite(RSL_PIN, (1 << RSL_PWM_RES) - 1);
+        break;
+    }
+}
 
 NoU_Motor::NoU_Motor(uint8_t motorPort)
 {
@@ -440,34 +463,4 @@ void NoU_Drivetrain::setInputDeadband(float inputDeadband)
 {
     inputDeadband = constrain(inputDeadband, 0, 1);
     this->inputDeadband = inputDeadband;
-}
-
-void RSL::initialize()
-{
-    ledcAttachChannel(RSL_PIN, RSL_PWM_FREQ, RSL_PWM_RES, RSL_CHANNEL);
-}
-
-void RSL::setState(uint8_t state)
-{
-    RSL::state = state;
-}
-
-// TODO: people have a lot of trouble with the RSL. make it smarter
-void RSL::update()
-{
-    switch (state)
-    {
-    case RSL_OFF:
-        ledcWrite(RSL_PIN, 1);
-        break;
-    case RSL_ON:
-        ledcWrite(RSL_PIN, (1 << RSL_PWM_RES) - 1);
-        break;
-    case RSL_ENABLED:
-        ledcWrite(RSL_PIN, millis() % 1000 < 500 ? (millis() % 500) * 2 : (500 - (millis() % 500)) * 2);
-        break;
-    case RSL_DISABLED:
-        ledcWrite(RSL_PIN, (1 << RSL_PWM_RES) - 1);
-        break;
-    }
 }

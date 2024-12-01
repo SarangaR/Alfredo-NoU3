@@ -6,18 +6,22 @@
 #include "Alfredo_NoU3_LSM6.h"
 #include "Alfredo_NoU3_MMC5.h"
 
-#define PIN_SNS_VERSION  1
-#define PIN_SNS_VIN      2
+const int PIN_SNS_VERSION = 1;
+const int PIN_SNS_VIN = 2;
 
-#define PIN_SERVO_1 4
-#define PIN_SERVO_2 5
-#define PIN_SERVO_3 6
-#define PIN_SERVO_4 7
-#define PIN_SERVO_5 8
-#define PIN_SERVO_6 9
-const int PIN_SDA_SF = 35;
-const int PIN_SCL_SF = 36;
-#define RSL_PIN 45
+const int PIN_SERVO_1 = 4;
+const int PIN_SERVO_2 = 5;
+const int PIN_SERVO_3 = 6;
+const int PIN_SERVO_4 = 7;
+const int PIN_SERVO_5 = 8;
+const int PIN_SERVO_6 = 9;
+
+const int PIN_I2C_SDA_QWIIC = 33;
+const int PIN_I2C_SCL_QWIIC = 34;
+const int PIN_I2C_SDA_IMU = 35;
+const int PIN_I2C_SCL_IMU = 36;
+
+const int RSL_PIN = 45;
 
 const int PIN_INTERRUPT_LSM6 = 48;
 const int PIN_INTERRUPT_MMC5 = 47;
@@ -27,20 +31,21 @@ const int SERVO_PWM_RES = 12; // bits
 const int SERVO_PWM_FREQ = 50; // Hz
 const int RSL_PWM_RES = 10; // bits
 const int RSL_PWM_FREQ = 1000; // Hz
-#define RSL_CHANNEL 1
-#define SERVO_1_CHANNEL 2
-#define SERVO_2_CHANNEL 3
-#define SERVO_3_CHANNEL 4
-#define SERVO_4_CHANNEL 5
-#define SERVO_5_CHANNEL 6
-#define SERVO_6_CHANNEL 7
 
+const int RSL_CHANNEL = 1;
+const int SERVO_1_CHANNEL = 2;
+const int SERVO_2_CHANNEL = 3;
+const int SERVO_3_CHANNEL = 4;
+const int SERVO_4_CHANNEL = 5;
+const int SERVO_5_CHANNEL = 6;
+const int SERVO_6_CHANNEL = 7;
 
-// RSL states (TODO: This should be an enum?)
-#define RSL_OFF 0
-#define RSL_ON 1
-#define RSL_DISABLED 2
-#define RSL_ENABLED 3
+typedef enum {
+    LIGHT_OFF,
+    LIGHT_ON,
+    LIGHT_DISABLED,
+    LIGHT_ENABLED
+} serviceLightState;
 
 // Drivetrain configurations (TODO: This should be an enum?)
 #define TWO_MOTORS 0
@@ -48,22 +53,27 @@ const int RSL_PWM_FREQ = 1000; // Hz
 
 class NoU_Agent {
     public:
-		NoU_Agent();
 		void begin();
+
 		void beginMotors();
 		void beginIMUs();
-        void updateIMUs();
+        bool updateIMUs();
+
 		float getBatteryVoltage(){ return analogReadMilliVolts(PIN_SNS_VIN) * 0.001 * 7.818; };
 		float getVersionVoltage(){ return analogReadMilliVolts(PIN_SNS_VERSION) * 0.001 ; };
-        bool checkDataIMU();
+
+        void beginServiceLight();
+        void setServiceLight(serviceLightState state);
+        void updateServiceLight();
 
         float acceleration_x, acceleration_y, acceleration_z;
         float gyroscope_x, gyroscope_y, gyroscope_z;
         float magnetometer_x, magnetometer_y, magnetometer_z;
-
-        bool newDataAvailableIMU;
+        
+        serviceLightState stateServiceLight;
 };
 
+//TODO: Add breakmode
 class NoU_Motor {
     public:
         NoU_Motor(uint8_t motorPort);
@@ -76,7 +86,7 @@ class NoU_Motor {
     private:
         float applyCurve(float output);
         uint8_t motorPort;
-        boolean inverted = false;
+        bool inverted = false;
         float minimumOutput = 0;
         float maximumOutput = 1;
         float exponent = 1;
@@ -129,15 +139,6 @@ class NoU_Drivetrain {
         float maximumOutput = 1;
         float inputExponent = 1;
         float inputDeadband = 0;
-};
-
-class RSL {
-    public:
-        static void initialize();
-        static void setState(uint8_t state);
-        static void update();
-    private:
-        static uint8_t state;
 };
 
 extern NoU_Agent NoU3;

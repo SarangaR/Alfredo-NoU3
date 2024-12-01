@@ -18,9 +18,9 @@ NoU_Servo servo(1);
 NoU_Drivetrain drivetrain(&frontLeftMotor, &frontRightMotor, &rearLeftMotor, &rearRightMotor);
 
 void setup() {
-    //EVERYONE SHOULD CHANGE "ESP32 Bluetooth" TO THE NAME OF THEIR ROBOT HERE BEFORE PAIRING THEIR ROBOT TO ANY LAPTOP
+    //EVERYONE SHOULD CHANGE "NoU3_Bluetooth" TO THE NAME OF THEIR ROBOT HERE BEFORE PAIRING THEIR ROBOT TO ANY LAPTOP
     NoU3.begin();
-    PestoLink.begin("ESP32_Bluetooth");
+    PestoLink.begin("NoU3_Bluetooth");
     Serial.begin(115200);
 
     // If a motor in your drivetrain is spinning the wrong way, change the value for it here from 'false' to 'true'
@@ -28,10 +28,6 @@ void setup() {
     frontRightMotor.setInverted(true);
     rearLeftMotor.setInverted(false);
     rearRightMotor.setInverted(true);
-
-    // Important for your Robot Service Light, no need to mess with this code
-    RSL::initialize();
-    RSL::setState(RSL_ENABLED);
 }
 
 void loop() {
@@ -48,9 +44,9 @@ void loop() {
         
         drivetrain.arcadeDrive(throttle, rotation);
 
-        RSL::setState(RSL_ENABLED);
+        NoU3.setServiceLight(LIGHT_ENABLED);
     } else {
-        RSL::setState(RSL_DISABLED);
+        NoU3.setServiceLight(LIGHT_DISABLED);
     }
 
     // Here we decide what the servo angle will be based on if button 0 is pressed
@@ -68,5 +64,5 @@ void loop() {
 
     // No need to mess with this code
     PestoLink.update();
-    RSL::update();
+    NoU3.updateServiceLight();
 }
