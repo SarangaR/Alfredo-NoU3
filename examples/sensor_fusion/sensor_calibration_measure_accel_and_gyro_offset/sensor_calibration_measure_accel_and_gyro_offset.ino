@@ -1,6 +1,7 @@
 #include <Alfredo_NoU3.h>
 
 const int numMeasurements = 2000;
+
 float acceleration_x[numMeasurements];
 float acceleration_y[numMeasurements];
 float acceleration_z[numMeasurements];
@@ -17,17 +18,16 @@ void setup() {
     ; // Wait here until the Serial Monitor is opened
   }
 
-  NoU3.beginMotors();
-  NoU3.beginIMUs();
+  NoU3.begin();
 
   Serial.println("Serial connection established. Starting data collection...");
 }
 
 void loop() {
-  NoU3.updateIMUs();
   
   // Check if data is available and measurements are not complete
-  if (NoU3.checkDataIMU() && !measurementsComplete) {
+  if (!measurementsComplete && NoU3.updateIMUs()) {
+
     // Store measurements in arrays
     acceleration_x[currentIndex] = NoU3.acceleration_x;
     acceleration_y[currentIndex] = NoU3.acceleration_y;
@@ -40,6 +40,8 @@ void loop() {
 
     // Check if we've reached the target number of measurements
     if (currentIndex >= numMeasurements) {
+      Serial.print(currentIndex);
+      Serial.println(" measurements taken");
       measurementsComplete = true;
       calculateAndPrintAverages();
     }
@@ -69,11 +71,11 @@ void calculateAndPrintAverages() {
   float avgGz = sumGz / numMeasurements;
 
   // Print averages
-  Serial.println("Average values after 2000 measurements:");
-  Serial.print("Acceleration X: "); Serial.println(avgAx);
-  Serial.print("Acceleration Y: "); Serial.println(avgAy);
-  Serial.print("Acceleration Z: "); Serial.println(avgAz);
-  Serial.print("Gyroscope X: "); Serial.println(avgGx);
-  Serial.print("Gyroscope Y: "); Serial.println(avgGy);
-  Serial.print("Gyroscope Z: "); Serial.println(avgGz);
+  Serial.print("Average values after "); Serial.print(currentIndex); Serial.println(" measurements:");
+  Serial.print("Acceleration X (Gs): "); Serial.println(avgAx, 3);
+  Serial.print("Acceleration Y (Gs): "); Serial.println(avgAy, 3);
+  Serial.print("Acceleration Z (Gs): "); Serial.println(avgAz, 3);
+  Serial.print("Gyroscope X (deg/s): "); Serial.println(avgGx, 3);
+  Serial.print("Gyroscope Y (deg/s): "); Serial.println(avgGy, 3);
+  Serial.print("Gyroscope Z (deg/s): "); Serial.println(avgGz, 3);
 }

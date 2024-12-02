@@ -3,8 +3,6 @@
 void setup() {
   Serial.begin(115200);
   NoU3.begin();
-
-  Serial.println("Accel_X\tAccel_Y\tAccel_Z\tGyro_X\tGyro_Y\tGyro_Z\tMag_X\tMag_Y\tMag_Z");
 }
 
 long lastPrintMs = 0;  // Stores the last time the function was called
@@ -13,23 +11,31 @@ void loop() {
 
   NoU3.updateIMUs();
 
-  if (millis() - lastPrintMs >= 200) {
+  if (millis() - lastPrintMs >= 20) {
     lastPrintMs = millis();  // Update the last time the function was called
     formatPrint(NoU3.acceleration_x);
+    Serial.print(", ");
     formatPrint(NoU3.acceleration_y);
+    Serial.print(", ");
     formatPrint(NoU3.acceleration_z);
+    Serial.print(", ");
     formatPrint(NoU3.gyroscope_x);
+    Serial.print(", ");
     formatPrint(NoU3.gyroscope_y);
+    Serial.print(", ");
     formatPrint(NoU3.gyroscope_z);
+    Serial.print(", ");
     formatPrint(NoU3.magnetometer_x);
+    Serial.print(", ");
     formatPrint(NoU3.magnetometer_y);
+    Serial.print(", ");
     formatPrint(NoU3.magnetometer_z);
-    Serial.println('\t');
+    Serial.println("");
   }
 }
 
 void formatPrint(float num) {
   char buffer[11];
-  snprintf(buffer, sizeof(buffer), "%7.3f   ", num);
+  snprintf(buffer, sizeof(buffer), "%.3f ", num);
   Serial.print(buffer);
 }
