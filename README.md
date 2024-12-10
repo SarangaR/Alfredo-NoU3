@@ -1,4 +1,4 @@
-# Alfredo_NoU3 (Test)
+# Alfredo_NoU3
 
 <img src="https://github.com/AlfredoSystems/alfredosystems.github.io/blob/master/images/nou3-1.png" width="400px">
 
