@@ -178,7 +178,7 @@ Uploading
 Now we need to upload our sketch to the robot.
 
 1. **Connect to the board.** Connect the NoU3 to your computer using a USB-C cable.
-2. **Select the NoU3.** Click the drop down near the top right and select **Alfredo NoU3**.
+2. **Select the NoU3 Board file.** Click the "Select Board" drop down near the top left of the Arduino IDE. Click Select other board an port. In the BOARDS section, search for and select **Alfredo NoU3**. In the COM section, ensure the COM port for your NoU3 is selected.
 3. **Upload.** Clicking the **Upload** button (the arrow in the top left pointing right. If you are not sure, hiver over the button, it will say Upload).
    
 Bluetooth Pairing
