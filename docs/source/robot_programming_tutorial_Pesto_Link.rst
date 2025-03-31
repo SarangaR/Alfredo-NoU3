@@ -6,25 +6,19 @@ This tutorial will guide you through programming, uploading, and driving a robot
 Setup
 -----
 
-1. **Get the Arduino IDE.** This lets us write and upload programs to our robot. Download it from the `Arduino website <https://www.arduino.cc/en/main/software>`_ and install it.
+| 1. **Get the Arduino IDE.** This lets us write and upload programs to our robot. Download it from the `Arduino website <https://www.arduino.cc/en/main/software>`_ and install it.
 
-2. **Open the Library Manager** In the Arduino IDE, open the Library Manager by clicking the books icon on the left.
+| 2. **Open the Library Manager** In the Arduino IDE, open the Library Manager by clicking the books icon on the left.
 
-3. **Install the** `Alfredo-NoU3`_ **and** `PestoLink-Receive`_ **libraries.** Click *Filter your search...* and type **Alfredo-NoU3**, then click **INSTALL**. Do the same for the library **PestoLink_Receive**.
+| 3. **Install the** `Alfredo-NoU3`_ **and** `PestoLink-Receive`_ **libraries.** Click *Filter your search...* and type **Alfredo-NoU3**, then click **INSTALL**. Do the same for the library **PestoLink_Receive**.
 
-4. **Configure the Arduino IDE to upload to a NoU3.** In the Arduino IDE, click **File** > **Preferences**. Paste the following in the **Additional Boards Manager URLs** field.
+| 4. **Configure the Arduino IDE to upload to a NoU3.** Go to **Tools** > **Board** > **Boards Manager**. Search for "ESP32" and install the package "esp32 by Espressif Systems". Use version 3.1.3.
 
-::
+| 5. **Decide what device you will use to drive your robot.** With a laptop, you can control your robot using the keyboard or a gamepad (for example an Xbox controller). With a smartphone, you can drive your robot with the touch screen.
 
-    https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-    
-Then, go to **Tools** > **Board** > **Boards Manager**. Search for "ESP32" and install the package "esp32 by Espressif Systems".
+| 6. **Pick a Web Browser.** PestoLink works best with Google Chrome on Windows, Android, MacOS, Linux, and ChromeOS. On iOS `Bluefy <https://apps.apple.com/us/app/bluefy-web-ble-browser/id1492822055>`_ is the best option.
 
-5. **Decide what device you will use to drive your robot.** With a laptop, you can control your robot using the keyboard or a gamepad (for example an Xbox controller). With a smartphone, you can drive your robot with the touch screen.
-
-6. **Pick a Web Browser.** PestoLink works best with Google Chrome on Windows, Android, MacOS, Linux, and ChromeOS. On iOS `Bluefy <https://apps.apple.com/us/app/bluefy-web-ble-browser/id1492822055>`_ is the best option.
-
-7. **Bookmark PestoLink.** go to `https://pestol.ink/ <https://pestol.ink/>`_ and bookmark the page.
+| 7. **Bookmark PestoLink.** go to `https://pestol.ink/ <https://pestol.ink/>`_ and bookmark the page.
 
 Basics
 ------
