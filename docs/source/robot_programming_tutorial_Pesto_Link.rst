@@ -12,7 +12,7 @@ Setup
 
 | 3. **Install the** `Alfredo-NoU3`_ **and** `PestoLink-Receive`_ **libraries.** Click *Filter your search...* and type **Alfredo-NoU3**, then click **INSTALL**. Do the same for the library **PestoLink_Receive**.
 
-| 4. **Configure the Arduino IDE to upload to a NoU3.** Go to **Tools** > **Board** > **Boards Manager**. Search for "ESP32" and install the package "esp32 by Espressif Systems". Use version 3.1.3.
+| 4. **Configure the Arduino IDE to upload to a NoU3.** Go to **Tools** > **Board** > **Boards Manager**. Search for "ESP32" and install the package "esp32 by Espressif Systems". Use version 3.0.7.
 
 | 5. **Decide what device you will use to drive your robot.** With a laptop, you can control your robot using the keyboard or a gamepad (for example an Xbox controller). With a smartphone, you can drive your robot with the touch screen.
 
