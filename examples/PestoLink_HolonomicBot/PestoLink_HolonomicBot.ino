@@ -6,13 +6,11 @@
 #include <PestoLink-Receive.h>
 #include <Alfredo_NoU3.h>
 
-// If your robot has more than a drivetrain and one servo, add those actuators here 
+// If your robot has more than a drivetrain, add those actuators here 
 NoU_Motor frontLeftMotor(1);
 NoU_Motor frontRightMotor(2);
 NoU_Motor rearLeftMotor(3);
 NoU_Motor rearRightMotor(4);
-
-NoU_Servo servo(1);
 
 // This creates the drivetrain object, you shouldn't have to mess with this
 NoU_Drivetrain drivetrain(&frontLeftMotor, &frontRightMotor, &rearLeftMotor, &rearRightMotor);
@@ -20,50 +18,58 @@ NoU_Drivetrain drivetrain(&frontLeftMotor, &frontRightMotor, &rearLeftMotor, &re
 void setup() {
     //EVERYONE SHOULD CHANGE "NoU3_Bluetooth" TO THE NAME OF THEIR ROBOT HERE BEFORE PAIRING THEIR ROBOT TO ANY LAPTOP
     NoU3.begin();
+
     PestoLink.begin("NoU3_Bluetooth");
     Serial.begin(115200);
 
-    // If a motor in your drivetrain is spinning the wrong way, change the value for it here from 'false' to 'true'
-    frontLeftMotor.setInverted(false);
-    frontRightMotor.setInverted(true);
-    rearLeftMotor.setInverted(false);
-    rearRightMotor.setInverted(true);
+    NoU3.calibrateIMUs(); // this takes exactly one second. Do not move the robot during calibration.
+
+    frontLeftMotor.setInverted(true);
+    rearLeftMotor.setInverted(true);
 }
 
+unsigned long lastPrintTime = 0;
+
 void loop() {
+    NoU3.updateIMUs();
+    NoU3.updateServiceLight();
+
+    if (lastPrintTime + 100 < millis()){
+        Serial.printf("gyro (rad): %.3f\r\n",  NoU3.yaw * 1.145 );
+        lastPrintTime = millis();
+    }
+
+    //The gyroscope sensor is by default precise, but not accurate. This is fixable by adjusting the angular scale factor.
+    //Tuning procedure: 
+    //Rotate the robot in place 5 times. Use the Serial printout to read the current gyro angle in Radians, we will call this "current_angle".
+    //current_angle should be around 31.416.
+    //Divide 31.416 by current_angle, the result should be close to 1, and that is your angular_scale. Set the variable below.
+    int angular_scale = 1.0;
 
     // This measures your batteries voltage and sends it to PestoLink
-    // You could use this value for a lot of cool things, for example make LEDs flash when your batteries are low?
     float batteryVoltage = NoU3.getBatteryVoltage();
     PestoLink.printBatteryVoltage(batteryVoltage);
 
-    // Here we decide what the throttle and rotation direction will be based on gamepad inputs   
     if (PestoLink.update()) {
         float yVelocity = -PestoLink.getAxis(1);
         float xVelocity = PestoLink.getAxis(0);
-        float rotation = PestoLink.getAxis(2);
-        
-        drivetrain.holonomicDrive(xVelocity, yVelocity, rotation);
+        float rotation = -PestoLink.getAxis(2);
+
+        // Get robot heading (in radians) from the gyro
+        float heading = NoU3.yaw * angular_scale;
+
+        // Rotate joystick vector to be robot-centric
+        float cosA = cos(heading);
+        float sinA = sin(heading);
+
+        float xField = xVelocity * cosA + yVelocity * sinA;
+        float yField = -xVelocity * sinA + yVelocity * cosA;
+
+        //set motor power
+        drivetrain.holonomicDrive(xField, yField, rotation);
 
         NoU3.setServiceLight(LIGHT_ENABLED);
     } else {
         NoU3.setServiceLight(LIGHT_DISABLED);
     }
-
-    // Here we decide what the servo angle will be based on if button 0 is pressed
-    int servoAngle = 0;
-
-    if (PestoLink.buttonHeld(0)) {
-        servoAngle = 70;
-    }
-    else {
-        servoAngle = 110;
-    }
-
-    // Here we set the drivetrain motor speeds and servo angle based on what we found in the above code
-    servo.write(servoAngle);
-
-    // No need to mess with this code
-    PestoLink.update();
-    NoU3.updateServiceLight();
 }

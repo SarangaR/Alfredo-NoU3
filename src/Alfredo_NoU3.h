@@ -59,6 +59,9 @@ class NoU_Agent {
 		void beginIMUs();
         bool updateIMUs();
 
+        void updateAngles();
+        void calibrateIMUs(float gravity_x = 0, float gravity_y = 0, float gravity_z = 1.0);
+
 		float getBatteryVoltage(){ return analogReadMilliVolts(PIN_SNS_VIN) * 0.001 * 7.818; };
 		float getVersionVoltage(){ return analogReadMilliVolts(PIN_SNS_VERSION) * 0.001 ; };
 
@@ -66,9 +69,14 @@ class NoU_Agent {
         void setServiceLight(serviceLightState state);
         void updateServiceLight();
 
-        float acceleration_x, acceleration_y, acceleration_z;
-        float gyroscope_x, gyroscope_y, gyroscope_z;
-        float magnetometer_x, magnetometer_y, magnetometer_z;
+        float acceleration_x=0, acceleration_y=0, acceleration_z=0;
+        float gyroscope_x=0, gyroscope_y=0, gyroscope_z=0;
+        float magnetometer_x=0, magnetometer_y=0, magnetometer_z=0;
+
+        float acceleration_x_offset = 0, acceleration_y_offset = 0, acceleration_z_offset = 0;
+        float gyroscope_x_offset = 0, gyroscope_y_offset = 0, gyroscope_z_offset = 0;
+
+        float roll = 0, pitch = 0, yaw = 0;
         
         serviceLightState stateServiceLight;
 };
@@ -79,6 +87,7 @@ class NoU_Motor {
         NoU_Motor(uint8_t motorPort);
         void set(float output);
         void setInverted(boolean isInverted);
+        void setMotorCurve(float minimumOutput, float maximumOutput, float deadband, float exponent);
         void setMinimumOutput(float minimumOutput);
         void setMaximumOutput(float maximumOutput);
         void setExponent(float exponent);
@@ -118,7 +127,7 @@ class NoU_Drivetrain {
         void tankDrive(float leftPower, float rightPower);
         void arcadeDrive(float throttle, float rotation, boolean invertedReverse = false);
         void curvatureDrive(float throttle, float rotation, boolean isQuickTurn = true);
-        void holonomicDrive(float xVelocity, float yVelocity, float rotation);
+        void holonomicDrive(float xVelocity, float yVelocity, float rotation, bool plusConfig = false);
         void setMinimumOutput(float minimumOutput);
         void setMaximumOutput(float maximumOutput);
         void setInputExponent(float inputExponent);

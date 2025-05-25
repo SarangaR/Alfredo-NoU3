@@ -326,7 +326,7 @@ public:
   bool readFieldsXYZ(uint32_t *x, uint32_t *y, uint32_t *z);
 
   // Get field strengths in MicroTesla
-  bool readAccelerometer(float *x, float *y, float *z);
+  bool readMagnetometer(float *x, float *y, float *z);
   
   // Clear the Meas_T_Done and/or Meas_M_Done interrupts
   // By default, clear both

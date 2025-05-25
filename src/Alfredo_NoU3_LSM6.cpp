@@ -78,9 +78,9 @@ int LSM6DSOXClass::readAcceleration(float *x, float *y, float *z)
   }
 
   //REORDERED FOR NOU3 CONVENTION
-  *x = -1 * data[1] * 4.0 / 32768.0;
-  *y =      data[0] * 4.0 / 32768.0;
-  *z =      data[2] * 4.0 / 32768.0;
+  *x = 1 * data[1] * 4.0 / 32768.0;
+  *y = -1 * data[0] * 4.0 / 32768.0;
+  *z =  1 * data[2] * 4.0 / 32768.0;
 
   return 1;
 }
@@ -112,9 +112,9 @@ int LSM6DSOXClass::readGyroscope(float *x, float *y, float *z)
   }
 
   //REORDERED FOR NOU3 CONVENTION
-  *x = -1 * float(data[1]) * 500.0 / 32768.0;
-  *y =      float(data[0]) * 500.0 / 32768.0;
-  *z =      float(data[2]) * 500.0 / 32768.0;
+  *x =  1 * float(data[1]) * (PI/180.0) * 500.0 / 32768.0;
+  *y = -1 * float(data[0]) * (PI/180.0) * 500.0 / 32768.0;
+  *z =  1 * float(data[2]) * (PI/180.0) * 500.0 / 32768.0;
 
   return 1;
 }

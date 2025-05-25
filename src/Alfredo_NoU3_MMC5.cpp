@@ -1043,7 +1043,7 @@ bool SFE_MMC5983MA::readFieldsXYZ(uint32_t *x, uint32_t *y, uint32_t *z)
     return success;
 }
 
-bool SFE_MMC5983MA::readAccelerometer(float *x, float *y, float *z)
+bool SFE_MMC5983MA::readMagnetometer(float *x, float *y, float *z)
 {
 	uint32_t rawValueX = 0, rawValueY = 0, rawValueZ = 0;
 	bool success = readFieldsXYZ(&rawValueX, &rawValueY, &rawValueZ);
@@ -1059,6 +1059,8 @@ bool SFE_MMC5983MA::readAccelerometer(float *x, float *y, float *z)
     *z /= (131072.0 / 800.0);
 
     //FLIPPED FOR NOU3 CONVENTION
+	*x *= -1.0;
+	*y *= -1.0;
 	*z *= -1.0;
 
 	return success;

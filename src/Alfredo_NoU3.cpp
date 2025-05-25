@@ -86,12 +86,19 @@ bool NoU_Agent::updateIMUs()
 
     if (LSM6.accelerationAvailable()) {
       LSM6.readAcceleration(&acceleration_x, &acceleration_y, &acceleration_z);// result in Gs
+      acceleration_x -= acceleration_x_offset;
+      acceleration_y -= acceleration_y_offset;
+      acceleration_z -= acceleration_z_offset;
     }
 
     if (LSM6.gyroscopeAvailable()) {
-      LSM6.readGyroscope(&gyroscope_x, &gyroscope_y, &gyroscope_z);  // Results in degrees per second
-
+      LSM6.readGyroscope(&gyroscope_x, &gyroscope_y, &gyroscope_z);  // Results in rad per second
+      gyroscope_x -= gyroscope_x_offset;
+      gyroscope_y -= gyroscope_y_offset;
+      gyroscope_z -= gyroscope_z_offset;
     }
+
+    updateAngles();
   }
 
   // Check MMC5983MA for new data
@@ -100,11 +107,82 @@ bool NoU_Agent::updateIMUs()
     newDataAvailableMMC5 = false;
     MMC5.clearMeasDoneInterrupt();
 
-    MMC5.readAccelerometer(&magnetometer_x, &magnetometer_y, &magnetometer_z);  // Results in µT (microteslas)
+    MMC5.readMagnetometer(&magnetometer_x, &magnetometer_y, &magnetometer_z);  // Results in µT (microteslas)
   }
 
   return isDataNew;
-}   
+}  
+
+void NoU_Agent::updateAngles()
+{
+    static unsigned long lastTime = 0;
+    
+    unsigned long currentTime = millis();
+
+    if (lastTime == 0) {
+        lastTime = currentTime;
+        return;
+    }
+        
+    float timestep = (currentTime - lastTime) / 1000.0;  // convert ms to seconds
+    lastTime = currentTime;
+
+    float deltaPitch = gyroscope_x * timestep;
+    float deltaRoll  = gyroscope_y * timestep;
+    float deltaYaw   = gyroscope_z * timestep;
+
+    pitch += deltaPitch;
+    roll  += deltaRoll;
+    yaw   += deltaYaw;
+}
+
+void NoU_Agent::calibrateIMUs(float gravity_x, float gravity_y, float gravity_z)
+{
+    int num_vals = 0;
+
+    float acceleration_x_accumulator = 0;
+    float acceleration_y_accumulator = 0;
+    float acceleration_z_accumulator = 0;
+    float gyroscope_x_accumulator = 0;
+    float gyroscope_y_accumulator = 0;
+    float gyroscope_z_accumulator = 0;
+    
+    unsigned long startTime = millis();
+    unsigned long calibrationTimeMs = 1000.0;
+
+    while(millis() < startTime + calibrationTimeMs) {
+        // Check if data is available and measurements are not complete
+        if (NoU3.updateIMUs()) {
+
+            // Store measurements in arrays
+            acceleration_x_accumulator += NoU3.acceleration_x;
+            acceleration_y_accumulator += NoU3.acceleration_y;
+            acceleration_z_accumulator += NoU3.acceleration_z;
+            gyroscope_x_accumulator += NoU3.gyroscope_x;
+            gyroscope_y_accumulator += NoU3.gyroscope_y;
+            gyroscope_z_accumulator += NoU3.gyroscope_z;
+
+            num_vals++;
+        }
+    }
+
+    // Calculate averages
+    acceleration_x_offset = (acceleration_x_accumulator / num_vals) - gravity_x;
+    acceleration_y_offset = (acceleration_y_accumulator / num_vals) - gravity_y;
+    acceleration_z_offset = (acceleration_z_accumulator / num_vals) - gravity_z;
+    gyroscope_x_offset = gyroscope_x_accumulator / num_vals;
+    gyroscope_y_offset = gyroscope_y_accumulator / num_vals;
+    gyroscope_z_offset = gyroscope_z_accumulator / num_vals;
+
+    // Print averages
+    //Serial.print("Average values after "); Serial.print(num_vals); Serial.println(" measurements:");
+    //Serial.print("Acceleration X (Gs): "); Serial.println(acceleration_x_offset, 3);
+    //Serial.print("Acceleration Y (Gs): "); Serial.println(acceleration_y_offset, 3);
+    //Serial.print("Acceleration Z (Gs): "); Serial.println(acceleration_z_offset, 3);
+    //Serial.print("Gyroscope X (deg/s): "); Serial.println(gyroscope_x_offset, 3);
+    //Serial.print("Gyroscope Y (deg/s): "); Serial.println(gyroscope_y_offset, 3);
+    //Serial.print("Gyroscope Z (deg/s): "); Serial.println(gyroscope_z_offset, 3);
+}
 
 void NoU_Agent::beginServiceLight()
 {
@@ -165,12 +243,25 @@ void NoU_Motor::set(float output)
 
 float NoU_Motor::applyCurve(float input)
 {
-    return fmap((fabs(input) < deadband ? 0 : 1)                                                        // apply deadband
-                    * pow(max(fmap(constrain(fabs(input), -1, 1), deadband, 1, 0, 1), 0.0f), exponent), // account for deadband, apply exponent
-                0, 1, minimumOutput, maximumOutput)                                                     // apply minimum and maximum output limits
-           * (input == 0 ? 0 : input > 0 ? 1
-                                         : -1) // apply original sign
-           * (inverted ? -1 : 1);              // account for inversion
+    float sign = (input == 0) ? 0 : (input > 0 ? 1 : -1);
+    float x = fabs(input);
+
+    if (x < deadband)
+        return 0;
+
+    float curved = pow(max(fmap(constrain(x, 0, 1), deadband, 1, 0, 1), 0.0f), exponent);
+    float output = fmap(curved, 0, 1, minimumOutput, maximumOutput);
+
+    return output * sign * (inverted ? -1 : 1);
+}
+
+
+void NoU_Motor::setMotorCurve(float minimumOutput, float maximumOutput, float deadband, float exponent)
+{
+    setMinimumOutput(minimumOutput);
+    setMaximumOutput(maximumOutput);
+    setDeadband(deadband);
+    setExponent(exponent);
 }
 
 void NoU_Motor::setMinimumOutput(float minimumOutput)
@@ -409,17 +500,31 @@ void NoU_Drivetrain::curvatureDrive(float throttle, float rotation, boolean isQu
     setMotors(leftPower, rightPower, leftPower, rightPower);
 }
 
-void NoU_Drivetrain::holonomicDrive(float xVelocity, float yVelocity, float rotation)
+void NoU_Drivetrain::holonomicDrive(float xVelocity, float yVelocity, float rotation, bool plusConfig)
 {
     if (drivetrainType == TWO_MOTORS)
         return;
     xVelocity = applyInputCurve(xVelocity);
     yVelocity = applyInputCurve(yVelocity);
     rotation = applyInputCurve(rotation);
-    float frontLeftPower = xVelocity + yVelocity + rotation;
-    float frontRightPower = -xVelocity + yVelocity - rotation;
-    float rearLeftPower = -xVelocity + yVelocity + rotation;
-    float rearRightPower = xVelocity + yVelocity - rotation;
+    
+    float frontLeftPower = 0;
+    float frontRightPower = 0;
+    float rearLeftPower = 0;
+    float rearRightPower = 0;
+
+    if(plusConfig){
+        frontLeftPower = yVelocity + rotation;
+        frontRightPower = xVelocity + rotation;
+        rearLeftPower = -xVelocity + rotation;
+        rearRightPower = -yVelocity + rotation;
+    } else { //X config
+        frontLeftPower = -xVelocity - yVelocity + rotation;
+        frontRightPower = -xVelocity + yVelocity + rotation;
+        rearLeftPower = xVelocity - yVelocity + rotation;
+        rearRightPower = xVelocity + yVelocity + rotation;
+    }
+
     float maxMagnitude = max(fabs(frontLeftPower), max(fabs(frontRightPower), max(fabs(rearLeftPower), fabs(rearRightPower))));
     if (maxMagnitude > 1)
     {
@@ -428,6 +533,7 @@ void NoU_Drivetrain::holonomicDrive(float xVelocity, float yVelocity, float rota
         rearLeftPower /= maxMagnitude;
         rearRightPower /= maxMagnitude;
     }
+
     setMotors(frontLeftPower, frontRightPower, rearLeftPower, rearRightPower);
 }
 
