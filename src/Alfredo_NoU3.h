@@ -5,6 +5,7 @@
 
 #include "Alfredo_NoU3_LSM6.h"
 #include "Alfredo_NoU3_MMC5.h"
+#include "Alfredo_NoU3_encoder.h"
 
 const int PIN_SNS_VERSION = 1;
 const int PIN_SNS_VIN = 2;
@@ -92,6 +93,10 @@ class NoU_Motor {
         void setMaximumOutput(float maximumOutput);
         void setExponent(float exponent);
         void setDeadband(float deadband);
+
+        void beginEncoder(int8_t pinA = -1, int8_t pinB = -1);
+        int32_t getPosition();
+
     private:
         float applyCurve(float output);
         uint8_t motorPort;
@@ -100,6 +105,8 @@ class NoU_Motor {
         float maximumOutput = 1;
         float exponent = 1;
         float deadband = 0;
+
+        Encoder _encoder;
 };
 
 class NoU_Servo {

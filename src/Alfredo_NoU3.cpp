@@ -4,6 +4,7 @@
 #include "Alfredo_NoU3_LSM6.h"
 #include "Alfredo_NoU3_MMC5.h"
 #include "Alfredo_NoU3_PCA9.h"
+#include "Alfredo_NoU3_encoder.h"
 
 #include "Alfredo_NoU3.h"
 
@@ -35,6 +36,7 @@ void NoU_Agent::begin()
     Wire1.begin(PIN_I2C_SDA_IMU, PIN_I2C_SCL_IMU, 400000);
     beginMotors();
     beginIMUs();
+
     beginServiceLight();
 }
 
@@ -219,6 +221,35 @@ NoU_Motor::NoU_Motor(uint8_t motorPort)
 {
     this->motorPort = motorPort;
     set(0);
+}
+
+void NoU_Motor::beginEncoder(int8_t pinA, int8_t pinB)
+{
+    //the 6 pin pairs are for M2-M7. M1 and M8 do not have encoders
+    const uint8_t encoderPinMap[6][2] = {
+        {18, 17},  // M2, E2
+        {16, 15},  // M3, E3
+        {11, 10},  // M4, E5
+        {42, 41},  // M5, E4
+        {39, 40},  // M6, E6
+        {37, 38}   // M7, E1
+    };
+
+    if (pinA == -1 || pinB == -1){
+        if (this->motorPort < 2 || this->motorPort > 7){
+            return;
+        }
+
+        pinA = encoderPinMap[this->motorPort - 2][0];
+        pinB = encoderPinMap[this->motorPort - 2][1];
+    }
+
+    this->_encoder.begin(pinA, pinB);
+}
+
+int32_t NoU_Motor::getPosition()
+{
+return this->_encoder.getPosition();
 }
 
 void NoU_Motor::set(float output)

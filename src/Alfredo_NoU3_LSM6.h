@@ -31,7 +31,6 @@
 #define LSM6DSOX_CTRL1_A            0X10
 #define LSM6DSOX_CTRL2_G            0X11
 
-
 #define LSM6DSOX_CTRL6_C            0X15
 #define LSM6DSOX_CTRL7_G            0X16
 #define LSM6DSOX_CTRL8_A            0X17

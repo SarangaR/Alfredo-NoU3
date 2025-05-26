@@ -63,6 +63,5 @@ void loop() {
     servo.write(servoAngle);
 
     // No need to mess with this code
-    PestoLink.update();
     NoU3.updateServiceLight();
 }
