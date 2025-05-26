@@ -1,6 +1,6 @@
 # Alfredo_NoU3
 
-<img src="https://github.com/AlfredoSystems/alfredosystems.github.io/blob/master/images/nou3-1.png" width="400px">
+<img src="https://github.com/AlfredoSystems/alfredosystems.github.io/blob/master/images/nou3-1.jpg" width="400px">
 
 Library for the Alfredo NoU3. Supports motors and servos, has helper methods for different drivetrain types.
 

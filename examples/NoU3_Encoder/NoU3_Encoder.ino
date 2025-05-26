@@ -24,12 +24,12 @@ void setup() {
     //you can create an encoder for M1 and M8, but you have to supply your own pins
     int enc2_pinA = 4;
     int enc2_pinB = 5;
-    customEncoderedMotor.begin(enc2_pinA, enc2_pinB);
+    customEncoderedMotor.beginEncoder(enc2_pinA, enc2_pinB);
 
     //you have to supply your own pins for unassociated encoders too
     int enc3_pinA = 6;
     int enc3_pinB = 7;
-    customEncoder.beginEncoder(enc3_pinA, enc3_pinB);
+    customEncoder.begin(enc3_pinA, enc3_pinB);
     
     
     PestoLink.begin("NoU3_Encodered_Motor");
