@@ -227,12 +227,12 @@ void NoU_Motor::beginEncoder(int8_t pinA, int8_t pinB)
 {
     //the 6 pin pairs are for M2-M7. M1 and M8 do not have encoders
     const uint8_t encoderPinMap[6][2] = {
-        {18, 17},  // M2, E2
-        {16, 15},  // M3, E3
-        {11, 10},  // M4, E5
-        {42, 41},  // M5, E4
-        {39, 40},  // M6, E6
-        {37, 38}   // M7, E1
+        {17, 18},  // M2, E2
+        {15, 16},  // M3, E3
+        {10, 11},  // M4, E5
+        {41, 42},  // M5, E4
+        {40, 39},  // M6, E6
+        {38, 37}   // M7, E1
     };
 
     if (pinA == -1 || pinB == -1){

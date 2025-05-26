@@ -41,10 +41,10 @@ void loop() {
 
     //The gyroscope sensor is by default precise, but not accurate. This is fixable by adjusting the angular scale factor.
     //Tuning procedure: 
-    //Rotate the robot in place 5 times. Use the Serial printout to read the current gyro angle in Radians, we will call this "current_angle".
-    //current_angle should be around 31.416.
-    //Divide 31.416 by current_angle, the result should be close to 1, and that is your angular_scale. Set the variable below.
-    int angular_scale = 1.0;
+    //Rotate the robot in place 5 times. Use the Serial printout to read the current gyro angle in Radians, we will call this "measured_angle".
+    //measured_angle should be nearly 31.416 which is 5*2*pi. Update measured_angle below to complete the tuning process. 
+    int measured_angle = 31.416;
+    int angular_scale = (5.0*2.0*PI) / measured_angle;
 
     // This measures your batteries voltage and sends it to PestoLink
     float batteryVoltage = NoU3.getBatteryVoltage();
