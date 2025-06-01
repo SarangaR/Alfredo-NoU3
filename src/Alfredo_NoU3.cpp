@@ -45,7 +45,7 @@ void NoU_Agent::beginMotors()
     pca9685.setupSingleDevice(Wire1, 0x40);
     pca9685.setupOutputEnablePin(12);
     pca9685.enableOutputs(12);
-    pca9685.setToFrequency(1500);
+    pca9685.setToFrequency(1526);
 }
 
 void NoU_Agent::beginIMUs()

@@ -35,7 +35,7 @@ void loop() {
     NoU3.updateServiceLight();
 
     if (lastPrintTime + 100 < millis()){
-        Serial.printf("gyro (rad): %.3f\r\n",  NoU3.yaw * 1.145 );
+        Serial.printf("gyro yaw (radians): %.3f\r\n",  NoU3.yaw * 1.145 );
         lastPrintTime = millis();
     }
 
