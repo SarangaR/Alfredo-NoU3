@@ -43,8 +43,8 @@ void loop() {
     //Tuning procedure: 
     //Rotate the robot in place 5 times. Use the Serial printout to read the current gyro angle in Radians, we will call this "measured_angle".
     //measured_angle should be nearly 31.416 which is 5*2*pi. Update measured_angle below to complete the tuning process. 
-    int measured_angle = 31.416;
-    int angular_scale = (5.0*2.0*PI) / measured_angle;
+    float measured_angle = 31.416;
+    float angular_scale = (5.0*2.0*PI) / measured_angle;
 
     // This measures your batteries voltage and sends it to PestoLink
     float batteryVoltage = NoU3.getBatteryVoltage();
