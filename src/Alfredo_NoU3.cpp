@@ -283,7 +283,7 @@ float NoU_Motor::applyCurve(float input)
     float curved = pow(max(fmap(constrain(x, 0, 1), deadband, 1, 0, 1), 0.0f), exponent);
     float output = fmap(curved, 0, 1, minimumOutput, maximumOutput);
 
-    return output * sign * (inverted ? -1 : 1);
+    return output * sign;
 }
 
 
@@ -402,12 +402,6 @@ NoU_Drivetrain::NoU_Drivetrain(NoU_Motor *frontLeftMotor, NoU_Motor *frontRightM
 {
 }
 
-float NoU_Drivetrain::applyInputCurve(float input)
-{
-    return (fabs(input) < inputDeadband ? 0 : 1)                                                        // apply deadband
-           * pow(max(fmap(constrain(fabs(input), -1, 1), inputDeadband, 1, 0, 1), 0.0f), inputExponent) // account for deadband, apply exponent
-           * (input > 0 ? 1 : -1);                                                                      // apply original sign
-}
 
 void NoU_Drivetrain::setMotors(float frontLeftPower, float frontRightPower, float rearLeftPower, float rearRightPower)
 {
@@ -422,15 +416,11 @@ void NoU_Drivetrain::setMotors(float frontLeftPower, float frontRightPower, floa
 
 void NoU_Drivetrain::tankDrive(float leftPower, float rightPower)
 {
-    leftPower = applyInputCurve(leftPower);
-    rightPower = applyInputCurve(rightPower);
     setMotors(leftPower, rightPower, leftPower, rightPower);
 }
 
 void NoU_Drivetrain::arcadeDrive(float throttle, float rotation, boolean invertedReverse)
 {
-    throttle = applyInputCurve(throttle);
-    rotation = applyInputCurve(rotation);
     float leftPower = 0;
     float rightPower = 0;
     float maxInput = (throttle > 0 ? 1 : -1) * max(fabs(throttle), fabs(rotation));
@@ -465,9 +455,6 @@ void NoU_Drivetrain::arcadeDrive(float throttle, float rotation, boolean inverte
 
 void NoU_Drivetrain::curvatureDrive(float throttle, float rotation, boolean isQuickTurn)
 {
-    throttle = applyInputCurve(throttle);
-    rotation = applyInputCurve(rotation);
-
     float angularPower;
     boolean overPower;
 
@@ -535,9 +522,6 @@ void NoU_Drivetrain::holonomicDrive(float xVelocity, float yVelocity, float rota
 {
     if (drivetrainType == TWO_MOTORS)
         return;
-    xVelocity = applyInputCurve(xVelocity);
-    yVelocity = applyInputCurve(yVelocity);
-    rotation = applyInputCurve(rotation);
     
     float frontLeftPower = 0;
     float frontRightPower = 0;
@@ -568,6 +552,15 @@ void NoU_Drivetrain::holonomicDrive(float xVelocity, float yVelocity, float rota
     setMotors(frontLeftPower, frontRightPower, rearLeftPower, rearRightPower);
 }
 
+
+void NoU_Drivetrain::setMotorCurves(float minimumOutput, float maximumOutput, float deadband, float exponent)
+{
+    setMinimumOutput(minimumOutput);
+    setMaximumOutput(maximumOutput);
+    setDeadband(deadband);
+    setExponent(exponent);
+}
+
 void NoU_Drivetrain::setMinimumOutput(float minimumOutput)
 {
     if (drivetrainType == FOUR_MOTORS)
@@ -590,14 +583,24 @@ void NoU_Drivetrain::setMaximumOutput(float maximumOutput)
     frontRightMotor->setMaximumOutput(maximumOutput);
 }
 
-void NoU_Drivetrain::setInputExponent(float inputExponent)
+void NoU_Drivetrain::setExponent(float exponent)
 {
-    inputExponent = max(0.0f, inputExponent);
-    this->inputExponent = inputExponent;
+    if (drivetrainType == FOUR_MOTORS)
+    {
+        rearLeftMotor->setExponent(exponent);
+        rearRightMotor->setExponent(exponent);
+    }
+    frontLeftMotor->setExponent(exponent);
+    frontRightMotor->setExponent(exponent);
 }
 
-void NoU_Drivetrain::setInputDeadband(float inputDeadband)
+void NoU_Drivetrain::setDeadband(float deadband)
 {
-    inputDeadband = constrain(inputDeadband, 0, 1);
-    this->inputDeadband = inputDeadband;
+    if (drivetrainType == FOUR_MOTORS)
+    {
+        rearLeftMotor->setDeadband(deadband);
+        rearRightMotor->setDeadband(deadband);
+    }
+    frontLeftMotor->setDeadband(deadband);
+    frontRightMotor->setDeadband(deadband);
 }

@@ -135,14 +135,13 @@ class NoU_Drivetrain {
         void arcadeDrive(float throttle, float rotation, boolean invertedReverse = false);
         void curvatureDrive(float throttle, float rotation, boolean isQuickTurn = true);
         void holonomicDrive(float xVelocity, float yVelocity, float rotation, bool plusConfig = false);
+        void setMotorCurves(float minimumOutput, float maximumOutput, float deadband, float exponent);
         void setMinimumOutput(float minimumOutput);
         void setMaximumOutput(float maximumOutput);
-        void setInputExponent(float inputExponent);
-        void setInputDeadband(float inputDeadband);
+        void setExponent(float Exponent);
+        void setDeadband(float Deadband);
     private:
         void setMotors(float frontLeftPower, float frontRightPower, float rearLeftPower, float rearRightPower);
-        float applyInputCurve(float input);
-        float applyOutputCurve(float output);
         NoU_Motor *frontLeftMotor;
         NoU_Motor *frontRightMotor;
         NoU_Motor *rearLeftMotor;
@@ -151,10 +150,6 @@ class NoU_Drivetrain {
         float quickStopThreshold = 0.2;
         float quickStopAlpha = 0.1;
         float quickStopAccumulator;
-        float minimumOutput = 0;
-        float maximumOutput = 1;
-        float inputExponent = 1;
-        float inputDeadband = 0;
 };
 
 extern NoU_Agent NoU3;
