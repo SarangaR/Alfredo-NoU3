@@ -28,6 +28,12 @@ void interruptRoutineLSM6() {
 void interruptRoutineMMC5() {
   newDataAvailableMMC5 = true;
 }
+void taskUpdateIMUs(void* pvParameters){
+    while (true) {
+        NoU3.updateIMUs();
+        vTaskDelay(pdMS_TO_TICKS(1));
+    }
+}
 
 void NoU_Agent::begin()
 {
@@ -76,6 +82,8 @@ void NoU_Agent::beginIMUs()
     pinMode(PIN_INTERRUPT_MMC5, INPUT);
     attachInterrupt(digitalPinToInterrupt(PIN_INTERRUPT_MMC5), interruptRoutineMMC5, RISING);
     MMC5.enableInterrupt();
+
+    xTaskCreatePinnedToCore(taskUpdateIMUs, "taskUpdateIMUs", 4096, NULL, 2, NULL, 1);
 }
 
 bool NoU_Agent::updateIMUs()
@@ -263,9 +271,14 @@ void NoU_Motor::set(float output)
     double pinZeroDuty = 0;
     double pinOneDuty = 0;
 
-    if (brakeMode && motorPower == 0){
-        pinZeroDuty = 100;
-        pinOneDuty = 100;
+    if (brakeMode){
+        if (motorPower <= 0) {
+            pinZeroDuty = ((abs(motorPower)*-1)+1) * 100;
+            pinOneDuty = 100;
+        } else {
+            pinZeroDuty = 100;
+            pinOneDuty = ((abs(motorPower)*-1)+1) * 100;
+        }
     } else {
         if (motorPower >= 0) {
             pinZeroDuty = abs(motorPower * 100);
