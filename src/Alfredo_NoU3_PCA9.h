@@ -23,6 +23,8 @@ public:
   const static Channel CHANNELS_PER_DEVICE = 16;
   enum {DEVICE_COUNT_MAX=55};
 
+  void setAllDevicesToExternalClock();
+
   // Convenience method when using a single device
   void setupSingleDevice(TwoWire & wire=Wire,
     DeviceAddress device_address=0x40,
@@ -344,6 +346,8 @@ private:
   const static uint8_t OUTPUTS_HIGH_WHEN_DISABLED = 0b01;
   const static uint8_t OUTPUTS_HIGH_IMPEDANCE_WHEN_DISABLED = 0b10;
 
+  const static uint8_t USE_EXTERNAL_CLOCK = 1;
+  const static uint8_t USE_INTERNAL_CLOCK = 0;
   const static uint8_t SLEEP = 1;
   const static uint8_t WAKE = 0;
   const static uint8_t AUTO_INCREMENT_ENABLED = 1;

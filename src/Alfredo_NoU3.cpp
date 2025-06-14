@@ -259,17 +259,25 @@ void NoU_Motor::set(float output)
     float motorPower = applyCurve(output);
     if (inverted)
         motorPower = motorPower * -1;
+    
+    double pinZeroDuty = 0;
+    double pinOneDuty = 0;
 
-    if (motorPower >= 0)
-    {
-        pca9685.setChannelDutyCycle(portMap[this->motorPort - 1][0], abs(motorPower * 100));
-        pca9685.setChannelDutyCycle(portMap[this->motorPort - 1][1], 0);
+    if (brakeMode && motorPower == 0){
+        pinZeroDuty = 100;
+        pinOneDuty = 100;
+    } else {
+        if (motorPower >= 0) {
+            pinZeroDuty = abs(motorPower * 100);
+            pinOneDuty = 0;
+        } else {
+            pinZeroDuty = 0;
+            pinOneDuty = abs(motorPower * 100);
+        }
     }
-    else
-    {
-        pca9685.setChannelDutyCycle(portMap[this->motorPort - 1][0], 0);
-        pca9685.setChannelDutyCycle(portMap[this->motorPort - 1][1], abs(motorPower * 100));
-    }
+
+    pca9685.setChannelDutyCycle(portMap[this->motorPort - 1][0], pinZeroDuty);
+    pca9685.setChannelDutyCycle(portMap[this->motorPort - 1][1], pinOneDuty);
 }
 
 float NoU_Motor::applyCurve(float input)
@@ -319,9 +327,14 @@ void NoU_Motor::setExponent(float exponent)
     this->exponent = exponent;
 }
 
-void NoU_Motor::setInverted(boolean inverted)
+void NoU_Motor::setInverted(boolean isInverted)
 {
-    this->inverted = inverted;
+    this->inverted = isInverted;
+}
+
+void NoU_Motor::setBrakeMode(boolean isBrakeMode)
+{
+    this->brakeMode = isBrakeMode;
 }
 
 NoU_Servo::NoU_Servo(uint8_t servoPort, uint16_t minPulse, uint16_t maxPulse)
@@ -391,21 +404,21 @@ float NoU_Servo::getDegrees()
 
 NoU_Drivetrain::NoU_Drivetrain(NoU_Motor *leftMotor, NoU_Motor *rightMotor)
     : frontLeftMotor(leftMotor), frontRightMotor(rightMotor),
-      rearLeftMotor(), rearRightMotor(), drivetrainType(TWO_MOTORS)
+      rearLeftMotor(), rearRightMotor(), drivetrainType(DRIVE_TWO_MOTORS)
 {
 }
 
 NoU_Drivetrain::NoU_Drivetrain(NoU_Motor *frontLeftMotor, NoU_Motor *frontRightMotor,
                                NoU_Motor *rearLeftMotor, NoU_Motor *rearRightMotor)
     : frontLeftMotor(frontLeftMotor), frontRightMotor(frontRightMotor),
-      rearLeftMotor(rearLeftMotor), rearRightMotor(rearRightMotor), drivetrainType(FOUR_MOTORS)
+      rearLeftMotor(rearLeftMotor), rearRightMotor(rearRightMotor), drivetrainType(DRIVE_FOUR_MOTORS)
 {
 }
 
 
 void NoU_Drivetrain::setMotors(float frontLeftPower, float frontRightPower, float rearLeftPower, float rearRightPower)
 {
-    if (drivetrainType == FOUR_MOTORS)
+    if (drivetrainType == DRIVE_FOUR_MOTORS)
     {
         rearLeftMotor->set(rearLeftPower);
         rearRightMotor->set(rearRightPower);
@@ -520,7 +533,7 @@ void NoU_Drivetrain::curvatureDrive(float throttle, float rotation, boolean isQu
 
 void NoU_Drivetrain::holonomicDrive(float xVelocity, float yVelocity, float rotation, bool plusConfig)
 {
-    if (drivetrainType == TWO_MOTORS)
+    if (drivetrainType == DRIVE_TWO_MOTORS)
         return;
     
     float frontLeftPower = 0;
@@ -563,7 +576,7 @@ void NoU_Drivetrain::setMotorCurves(float minimumOutput, float maximumOutput, fl
 
 void NoU_Drivetrain::setMinimumOutput(float minimumOutput)
 {
-    if (drivetrainType == FOUR_MOTORS)
+    if (drivetrainType == DRIVE_FOUR_MOTORS)
     {
         rearLeftMotor->setMinimumOutput(minimumOutput);
         rearRightMotor->setMinimumOutput(minimumOutput);
@@ -574,7 +587,7 @@ void NoU_Drivetrain::setMinimumOutput(float minimumOutput)
 
 void NoU_Drivetrain::setMaximumOutput(float maximumOutput)
 {
-    if (drivetrainType == FOUR_MOTORS)
+    if (drivetrainType == DRIVE_FOUR_MOTORS)
     {
         rearLeftMotor->setMaximumOutput(maximumOutput);
         rearRightMotor->setMaximumOutput(maximumOutput);
@@ -585,7 +598,7 @@ void NoU_Drivetrain::setMaximumOutput(float maximumOutput)
 
 void NoU_Drivetrain::setExponent(float exponent)
 {
-    if (drivetrainType == FOUR_MOTORS)
+    if (drivetrainType == DRIVE_FOUR_MOTORS)
     {
         rearLeftMotor->setExponent(exponent);
         rearRightMotor->setExponent(exponent);
@@ -596,7 +609,7 @@ void NoU_Drivetrain::setExponent(float exponent)
 
 void NoU_Drivetrain::setDeadband(float deadband)
 {
-    if (drivetrainType == FOUR_MOTORS)
+    if (drivetrainType == DRIVE_FOUR_MOTORS)
     {
         rearLeftMotor->setDeadband(deadband);
         rearRightMotor->setDeadband(deadband);

@@ -5,6 +5,7 @@
 
 #include "Alfredo_NoU3_LSM6.h"
 #include "Alfredo_NoU3_MMC5.h"
+#include "Alfredo_NoU3_PCA9.h"
 #include "Alfredo_NoU3_encoder.h"
 
 const int PIN_SNS_VERSION = 1;
@@ -48,9 +49,10 @@ typedef enum {
     LIGHT_ENABLED
 } serviceLightState;
 
-// Drivetrain configurations (TODO: This should be an enum?)
-#define TWO_MOTORS 0
-#define FOUR_MOTORS 1
+typedef enum {
+    DRIVE_TWO_MOTORS = 0,
+    DRIVE_FOUR_MOTORS = 1
+} DrivetrainType;
 
 class NoU_Agent {
     public:
@@ -88,6 +90,7 @@ class NoU_Motor {
         NoU_Motor(uint8_t motorPort);
         void set(float output);
         void setInverted(boolean isInverted);
+        void setBrakeMode(boolean isBreakMode);
         void setMotorCurve(float minimumOutput, float maximumOutput, float deadband, float exponent);
         void setMinimumOutput(float minimumOutput);
         void setMaximumOutput(float maximumOutput);
@@ -101,6 +104,7 @@ class NoU_Motor {
         float applyCurve(float output);
         uint8_t motorPort;
         bool inverted = false;
+        bool brakeMode = false;
         float minimumOutput = 0;
         float maximumOutput = 1;
         float exponent = 1;
@@ -156,4 +160,5 @@ extern NoU_Agent NoU3;
 extern LSM6DSOXClass LSM6;
 extern SFE_MMC5983MA MMC5;
 
+extern PCA9685 pca9685;
 #endif

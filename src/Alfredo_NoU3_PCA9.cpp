@@ -827,6 +827,34 @@ void PCA9685::wakeAll()
   }
 }
 
+void PCA9685::setAllDevicesToExternalClock()
+{
+  //go to sleep
+  for (DeviceIndex device_index=0; device_index<device_count_; ++device_index)
+  {
+    Mode1Register mode1_register = readMode1Register(device_index);
+    mode1_register.fields.sleep = SLEEP;
+    write(device_addresses_[device_index],MODE1_REGISTER_ADDRESS,mode1_register.data);
+  }
+  delay(10);
+
+  //use prescale to get minimum period
+  for (DeviceIndex device_index=0; device_index<device_count_; ++device_index)
+  {
+    write(device_addresses_[device_index],PRE_SCALE_REGISTER_ADDRESS, PRE_SCALE_MIN);
+  }
+  delay(10);
+
+  //set clock to external and wake up
+  for (DeviceIndex device_index=0; device_index<device_count_; ++device_index)
+  {
+    Mode1Register mode1_register = readMode1Register(device_index);
+    mode1_register.fields.extclk = USE_EXTERNAL_CLOCK;
+    mode1_register.fields.sleep = WAKE;
+    write(device_addresses_[device_index],MODE1_REGISTER_ADDRESS,mode1_register.data);
+  }
+}
+
 void PCA9685::setPrescale(DeviceIndex device_index,
   uint8_t prescale)
 {
