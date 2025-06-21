@@ -52,7 +52,7 @@ void loop() {
     }
     
     //Connect with PestoLink to drive the motors 
-    if (PestoLink.update()) {
+    if (PestoLink.isConnected()) {
         float throttle = PestoLink.getAxis(1);
         
         defaultEncoderedMotor.set(throttle);
@@ -62,7 +62,4 @@ void loop() {
     } else {
         NoU3.setServiceLight(LIGHT_DISABLED);
     }
-
-    // No need to mess with this code
-    NoU3.updateServiceLight();
 }

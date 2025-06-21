@@ -41,8 +41,6 @@ void setup() {
 }
 
 void loop() {
-  NoU3.updateServiceLight();
-
   if(digitalRead(0) != 1){
     startTest = true;
   }

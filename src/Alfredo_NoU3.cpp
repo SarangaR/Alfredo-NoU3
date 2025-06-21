@@ -35,6 +35,13 @@ void taskUpdateIMUs(void* pvParameters){
     }
 }
 
+void taskUpdateServiceLight(void* pvParameters){
+    while (true) {
+        NoU3.updateServiceLight();
+        vTaskDelay(pdMS_TO_TICKS(1));
+    }
+}
+
 void NoU_Agent::begin()
 {
     Wire.begin(PIN_I2C_SDA_QWIIC, PIN_I2C_SCL_QWIIC, 400000);
@@ -199,6 +206,8 @@ void NoU_Agent::beginServiceLight()
     ledcAttachChannel(RSL_PIN, RSL_PWM_FREQ, RSL_PWM_RES, RSL_CHANNEL);
     setServiceLight(LIGHT_DISABLED);
     updateServiceLight();
+
+    xTaskCreatePinnedToCore(taskUpdateServiceLight, "taskUpdateServiceLight", 4096, NULL, 2, NULL, 1);
 }
 
 void NoU_Agent::setServiceLight(serviceLightState state)
@@ -208,21 +217,25 @@ void NoU_Agent::setServiceLight(serviceLightState state)
 
 void NoU_Agent::updateServiceLight()
 {
+    int dutyLED = 0;
+
     switch (stateServiceLight)
     {
     case LIGHT_OFF:
-        ledcWrite(RSL_PIN, 1);
+        dutyLED = 1;
         break;
     case LIGHT_ON:
-        ledcWrite(RSL_PIN, (1 << RSL_PWM_RES) - 1);
+        dutyLED = (1 << RSL_PWM_RES) - 1;
         break;
     case LIGHT_ENABLED:
-        ledcWrite(RSL_PIN, millis() % 1000 < 500 ? (millis() % 500) * 2 : (500 - (millis() % 500)) * 2);
+        dutyLED = millis() % 1000 < 500 ? (millis() % 500) * 2 : (500 - (millis() % 500)) * 2;
         break;
     case LIGHT_DISABLED:
-        ledcWrite(RSL_PIN, (1 << RSL_PWM_RES) - 1);
+        dutyLED = (1 << RSL_PWM_RES) - 1;
         break;
     }
+    Serial.println(dutyLED);
+    ledcWrite(RSL_PIN, dutyLED);
 }
 
 NoU_Motor::NoU_Motor(uint8_t motorPort)

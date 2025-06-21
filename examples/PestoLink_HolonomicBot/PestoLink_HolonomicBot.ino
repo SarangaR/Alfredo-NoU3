@@ -17,11 +17,11 @@ NoU_Drivetrain drivetrain(&frontLeftMotor, &frontRightMotor, &rearLeftMotor, &re
 
 void setup() {
     //EVERYONE SHOULD CHANGE "NoU3_Bluetooth" TO THE NAME OF THEIR ROBOT HERE BEFORE PAIRING THEIR ROBOT TO ANY LAPTOP
-    NoU3.begin();
-
     PestoLink.begin("NoU3_Bluetooth");
     Serial.begin(115200);
 
+    NoU3.begin();
+    
     NoU3.calibrateIMUs(); // this takes exactly one second. Do not move the robot during calibration.
 
     frontLeftMotor.setInverted(true);
@@ -31,9 +31,6 @@ void setup() {
 unsigned long lastPrintTime = 0;
 
 void loop() {
-    NoU3.updateIMUs();
-    NoU3.updateServiceLight();
-
     if (lastPrintTime + 100 < millis()){
         Serial.printf("gyro yaw (radians): %.3f\r\n",  NoU3.yaw * 1.145 );
         lastPrintTime = millis();
@@ -50,10 +47,10 @@ void loop() {
     float batteryVoltage = NoU3.getBatteryVoltage();
     PestoLink.printBatteryVoltage(batteryVoltage);
 
-    if (PestoLink.update()) {
-        float yVelocity = -PestoLink.getAxis(1);
-        float xVelocity = PestoLink.getAxis(0);
-        float rotation = -PestoLink.getAxis(2);
+    if (PestoLink.isConnected()) {
+        float fieldPowerX = -PestoLink.getAxis(1);
+        float fieldPowerY = PestoLink.getAxis(0);
+        float rotationPower = -PestoLink.getAxis(2);
 
         // Get robot heading (in radians) from the gyro
         float heading = NoU3.yaw * angular_scale;
@@ -62,11 +59,11 @@ void loop() {
         float cosA = cos(heading);
         float sinA = sin(heading);
 
-        float xField = xVelocity * cosA + yVelocity * sinA;
-        float yField = -xVelocity * sinA + yVelocity * cosA;
+        float robotPowerX = fieldPowerX * cosA + fieldPowerY * sinA;
+        float robotPowerY = -fieldPowerX * sinA + fieldPowerY * cosA;
 
         //set motor power
-        drivetrain.holonomicDrive(xField, yField, rotation);
+        drivetrain.holonomicDrive(robotPowerX, robotPowerY, rotationPower);
 
         NoU3.setServiceLight(LIGHT_ENABLED);
     } else {
