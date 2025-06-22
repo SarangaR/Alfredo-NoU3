@@ -6,5 +6,5 @@ Alfredo-NoU3 Documentation
 
 
    tutorials
-   hardware documentation
+   hardware_documentation
    api_reference

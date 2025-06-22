@@ -278,6 +278,7 @@ Our completed sketch will now let us drive the robot. Upload it to the NoU3, pow
 
 Troubleshooting
 -----------------
+Some USB-C cables are "power only", they cannot be used to upload code to a NoU3. If your PC does not find your NoU3, make sure your USB-C cable is known to be a data cable.
 
 If you ever fail to upload code, and the IDE says "fatal error occured: No serial data recieved." then you may need to put your NoU3 into Boot Mode.
 
