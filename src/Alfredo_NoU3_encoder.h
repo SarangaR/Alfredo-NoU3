@@ -5,9 +5,9 @@
 
 #define MAX_ENCODERS 8
 
-class Encoder {
+class NoU_Encoder {
 public:
-    Encoder();
+    NoU_Encoder();
     void begin(uint8_t pinA, uint8_t pinB);
     int32_t getPosition();
     void update();
@@ -29,7 +29,7 @@ private:
     static void isr7();
 
     static uint8_t numEncoders;
-    static Encoder* instances[MAX_ENCODERS];
+    static NoU_Encoder* instances[MAX_ENCODERS];
 };
 
 #endif // NOU3_ENCODER_H

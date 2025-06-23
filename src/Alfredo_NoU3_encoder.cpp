@@ -1,10 +1,10 @@
 #include "Alfredo_NoU3_encoder.h"
 
 // Static members
-Encoder* Encoder::instances[MAX_ENCODERS] = {nullptr};
-uint8_t Encoder::numEncoders = 0;
+NoU_Encoder* NoU_Encoder::instances[MAX_ENCODERS] = {nullptr};
+uint8_t NoU_Encoder::numEncoders = 0;
 
-Encoder::Encoder()
+NoU_Encoder::NoU_Encoder()
     : _pinA(0), _pinB(0), _position(0), _prevState(0) {
 
     if (numEncoders >= MAX_ENCODERS) return;
@@ -14,7 +14,7 @@ Encoder::Encoder()
     numEncoders++;
 }
 
-void Encoder::begin(uint8_t pinA, uint8_t pinB) {
+void NoU_Encoder::begin(uint8_t pinA, uint8_t pinB) {
     _pinA = pinA;
     _pinB = pinB;
 
@@ -40,14 +40,14 @@ void Encoder::begin(uint8_t pinA, uint8_t pinB) {
     attachInterrupt(digitalPinToInterrupt(pinB), isrFunc, CHANGE);
 }
 
-int32_t Encoder::getPosition() {
+int32_t NoU_Encoder::getPosition() {
     noInterrupts();
     int32_t pos = _position;
     interrupts();
     return pos;
 }
 
-void Encoder::update() {
+void NoU_Encoder::update() {
     uint8_t state = (digitalRead(_pinA) << 1) | digitalRead(_pinB);
     uint8_t transition = (_prevState << 2) | state;
 
@@ -63,11 +63,11 @@ void Encoder::update() {
 }
 
 // Static ISR stubs — call back into instance
-void Encoder::isr0() { if (instances[0]) instances[0]->update(); }
-void Encoder::isr1() { if (instances[1]) instances[1]->update(); }
-void Encoder::isr2() { if (instances[2]) instances[2]->update(); }
-void Encoder::isr3() { if (instances[3]) instances[3]->update(); }
-void Encoder::isr4() { if (instances[4]) instances[4]->update(); }
-void Encoder::isr5() { if (instances[5]) instances[5]->update(); }
-void Encoder::isr6() { if (instances[6]) instances[6]->update(); }
-void Encoder::isr7() { if (instances[7]) instances[7]->update(); }
+void NoU_Encoder::isr0() { if (instances[0]) instances[0]->update(); }
+void NoU_Encoder::isr1() { if (instances[1]) instances[1]->update(); }
+void NoU_Encoder::isr2() { if (instances[2]) instances[2]->update(); }
+void NoU_Encoder::isr3() { if (instances[3]) instances[3]->update(); }
+void NoU_Encoder::isr4() { if (instances[4]) instances[4]->update(); }
+void NoU_Encoder::isr5() { if (instances[5]) instances[5]->update(); }
+void NoU_Encoder::isr6() { if (instances[6]) instances[6]->update(); }
+void NoU_Encoder::isr7() { if (instances[7]) instances[7]->update(); }

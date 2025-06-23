@@ -13,7 +13,7 @@ NoU_Motor defaultEncoderedMotor(2);
 NoU_Motor customEncoderedMotor(1);
 
 //you can also create an encoder unassociated with a motor. Keep in mind your robot can only use up to 8 total encoders
-Encoder customEncoder;
+NoU_Encoder customEncoder;
 
 void setup() {
     NoU3.begin();

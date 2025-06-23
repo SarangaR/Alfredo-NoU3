@@ -110,7 +110,7 @@ class NoU_Motor {
         float exponent = 1;
         float deadband = 0;
 
-        Encoder _encoder;
+        NoU_Encoder _encoder;
 };
 
 class NoU_Servo {
