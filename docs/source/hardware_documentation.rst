@@ -6,10 +6,10 @@ Overview
 `The NoU3 <https://www.alfredosys.com/products/alfredo-nou3/>`_ is a versatile all-in-one robot control PCB. With an ESP32-S3 as the brain, it features:
 
 * Eight DC motor ports
-* Six of the motor ports are alternatively accessible through encoder ports
+* Six encoder ports
 * Built-in accelerometer, gyroscope, and magnetometer
 * USB-C for reliable code upload
-* Four easy-to-use servo ports. (which can be increased to a max of six)
+* Four easy-to-use servo ports (which can be increased to a max of six)
 * Qwiic compatible!
 * Rated for up to 11.8V through the 5.5mm DC barrel jack.
 
